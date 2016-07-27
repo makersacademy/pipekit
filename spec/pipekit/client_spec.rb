@@ -1,5 +1,4 @@
 require 'webmock'
-require 'spec_helper'
 
 module Pipekit
   RSpec.describe Request do

@@ -5,10 +5,6 @@ module Pipekit
       @request = request
     end
 
-    def uri
-      "#{self.class.to_s.downcase}s"
-    end
-
     def all
       request.get("/#{uri}")
     end
@@ -69,6 +65,14 @@ module Pipekit
       request.put("/#{uri}/#{id}", fields)
     end
 
+    def self.included(base)
+      base.send :extend, ClassMethods
+    end
+
+    module ClassMethods
+      attr_accessor :uri
+    end
+
     private
 
     attr_reader :request
@@ -87,6 +91,10 @@ module Pipekit
     def get_by_field(field:, value:)
       result = request.search_by_field(type: uri, field: field, value: value)
       result.map { |item| get_by_id(item["id"]) }.flatten
+    end
+
+    def uri
+      self.class.uri
     end
   end
 end

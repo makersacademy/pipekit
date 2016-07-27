@@ -1,5 +1,3 @@
-require 'pipekit'
-
 RSpec.describe Pipekit do
   it 'has a version number' do
     expect(Pipekit::VERSION).not_to be nil

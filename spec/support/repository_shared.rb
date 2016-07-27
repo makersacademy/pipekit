@@ -2,7 +2,6 @@ RSpec.shared_examples "a repository" do
 
   subject(:repository) { described_class.new(request) }
   let(:request) { instance_spy("Pipedrive::Request") }
-  let(:uri) { repository.uri }
 
   describe "#all" do
     it "returns all records from the repository" do
@@ -17,7 +16,7 @@ RSpec.shared_examples "a repository" do
       response = {id: 123, name: "Test"}
 
       allow(request).to receive(:search_by_field).with(search_data).and_return([{"id" => 123}])
-      allow(request).to receive(:get).with("/#{uri}/123").and_return(response)
+      allow(repository).to receive(:get_by_id).and_return(response)
 
       expect(repository.where(fake_field: "fake value")).to eq([response])
     end

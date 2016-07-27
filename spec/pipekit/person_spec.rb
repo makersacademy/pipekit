@@ -1,9 +1,8 @@
-require "spec_helper"
-
 RSpec.describe Pipekit::Person do
 
   subject(:repository) { described_class.new(request) }
   let(:request) { instance_spy("Pipedrive::Request") }
+  let(:uri) { "persons" }
 
   it_behaves_like "a repository"
 
@@ -13,7 +12,7 @@ RSpec.describe Pipekit::Person do
 
       repository.get_by_email(email)
 
-      expect(request).to have_received(:get).with("/#{repository.uri}/find", term: email, search_by_email: 1)
+      expect(request).to have_received(:get).with("/persons/find", term: email, search_by_email: 1)
     end
 
     it "gets by name" do
@@ -21,7 +20,7 @@ RSpec.describe Pipekit::Person do
 
       repository.get_by_name(name)
 
-      expect(request).to have_received(:get).with("/#{repository.uri}/find", term: name)
+      expect(request).to have_received(:get).with("/persons/find", term: name)
     end
   end
 end

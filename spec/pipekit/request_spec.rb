@@ -20,7 +20,7 @@ module Pipekit
 
     describe "#search_by_field" do
       it "makes a get request to Pipedrive /searchResults with a field key and value" do
-        field_key = request.config["people_fields"]["middle_name"]
+        field_key = Pipekit.config["people_fields"]["middle_name"]
         field_type = "personField"
         return_item_ids = true
         term = "princess"
@@ -47,7 +47,7 @@ module Pipekit
     end
 
     def default_query
-      { api_token: request.config[:api_token] }
+      { api_token: Pipekit.config[:api_token] }
     end
   end
 end

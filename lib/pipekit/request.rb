@@ -3,13 +3,8 @@ require "httparty"
 module Pipekit
   class Request
     include HTTParty
-    include Configurable
 
     PIPEDRIVE_URL = "https://api.pipedrive.com/v1"
-
-    def self.config_file_path
-      Pipekit.config_file_path
-    end
 
     base_uri PIPEDRIVE_URL
     format :json
@@ -50,6 +45,10 @@ module Pipekit
     end
 
     private
+
+    def config
+      Pipekit.config
+    end
 
     def result_from(response)
       return nil unless success?(response)

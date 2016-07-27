@@ -1,4 +1,15 @@
+require "pipekit/configurable"
+require "httparty"
+require "pipekit/version"
+require "pipekit/request"
+require "pipekit/repository"
+require "pipekit/person"
+require "pipekit/deal"
+require "pipekit/person_field"
+
 module Pipekit
+  include Configurable
+
   # Define a path to Pipedrive config file
   #
   # Example:
@@ -19,11 +30,3 @@ module Pipekit
   ConfigNotSetError = Class.new(Exception)
 end
 
-require "httparty"
-require "pipekit/configurable"
-require "pipekit/version"
-require "pipekit/request"
-require "pipekit/repository"
-require "pipekit/person"
-require "pipekit/deal"
-require "pipekit/person_field"

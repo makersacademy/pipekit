@@ -1,18 +1,16 @@
-require "pipekit/request"
-require "pipekit/repository/persons_methods"
-require "pipekit/repository/person_fields_methods"
-require "pipekit/repository/deals_methods"
-
 module Pipekit
-  class Repository
-    def initialize(uri, special_methods_module = nil, client = Pipekit::Request.new)
-  new   @uri = uri
-      @client = client
-      extend(special_methods_module) if special_methods_module
+  module Repository
+
+    def initialize(request = Pipekit::Request.new)
+      @request = request
+    end
+
+    def uri
+      "#{self.class.to_s.downcase}s"
     end
 
     def all
-      client.get("/#{uri}")
+      request.get("/#{uri}")
     end
 
     # Public: Get all records from Pipedrive by **one** of the record's fields.
@@ -55,7 +53,7 @@ module Pipekit
     #
     # Returns nothing.
     def create(fields)
-      client.post("/#{uri}", fields)
+      request.post("/#{uri}", fields)
     end
 
     # Public: Updates a record on Pipedrive.
@@ -68,12 +66,12 @@ module Pipekit
     #
     # Returns nothing.
     def update(id, fields)
-      client.put("/#{uri}/#{id}", fields)
+      request.put("/#{uri}/#{id}", fields)
     end
 
     private
 
-    attr_reader :client, :uri
+    attr_reader :request
 
     def method_missing(method_name, *args)
       super unless method_name =~ /^get_by/
@@ -83,17 +81,12 @@ module Pipekit
     end
 
     def get_by_id(id)
-      [client.get("/#{uri}/#{id}")]
+      [request.get("/#{uri}/#{id}")]
     end
 
     def get_by_field(field:, value:)
-      result = client.search_by_field(type: uri, field: field, value: value)
-      result.map { |item| get_by_id(item["id"]) }
+      result = request.search_by_field(type: uri, field: field, value: value)
+      result.map { |item| get_by_id(item["id"]) }.flatten
     end
-
-    #Persons = new("persons", Pipekit::Repository::PersonsMethods)
-    #PersonFields = new("personFields", Pipekit::Repository::PersonFieldsMethods)
-    #Deals = new("deals", Pipekit::Repository::DealsMethods)
-    #Notes = new("notes")
   end
 end

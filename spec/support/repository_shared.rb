@@ -1,21 +1,25 @@
-require "spec_helper"
+RSpec.shared_examples "a repository" do
 
-RSpec.describe Pipekit::Repository::Person do
   subject(:repository) { described_class.new(request) }
-  let(:request) { double("Pipedrive::Request") }
-  let(:uri) { described_class.uri }
+  let(:request) { instance_spy("Pipedrive::Request") }
+  let(:uri) { repository.uri }
 
   describe "#all" do
     it "returns all records from the repository" do
-      expect(request).to receive(:get).with("/#{uri}")
       repository.all
+      expect(request).to have_received(:get).with("/#{uri}")
     end
   end
 
   describe "#where" do
     it "returns records matching given field" do
-      expect(repository).to receive(:get_by_fake_field).with("fake value")
-      repository.where(fake_field: "fake value")
+      search_data = {type: uri, field: "fake_field", value: "fake value"}
+      response = {id: 123, name: "Test"}
+
+      allow(request).to receive(:search_by_field).with(search_data).and_return([{"id" => 123}])
+      allow(request).to receive(:get).with("/#{uri}/123").and_return(response)
+
+      expect(repository.where(fake_field: "fake value")).to eq([response])
     end
   end
 

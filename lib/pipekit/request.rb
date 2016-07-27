@@ -1,5 +1,7 @@
+require "httparty"
+
 module Pipekit
-  class Client
+  class Request
     include HTTParty
     include Configurable
 

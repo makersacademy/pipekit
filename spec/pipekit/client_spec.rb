@@ -2,11 +2,11 @@ require 'webmock'
 require 'spec_helper'
 
 module Pipekit
-  RSpec.describe Client do
+  RSpec.describe Request do
     include WebMock::API
     WebMock.enable!
 
-    subject(:client) { described_class.new }
+    subject(:request) { described_class.new }
 
     before do
       Pipekit.config_file_path = File.join(File.dirname(__FILE__), "..", "support", "config.yml")
@@ -14,21 +14,20 @@ module Pipekit
 
     describe "#get" do
       it "makes a get request to Pipedrive with correct options" do
-        client = described_class.new
         stub_request(:get, "https://api.pipedrive.com/v1/persons?api_token=").to_return(status: 200, body: {success: true}.to_json)
-        client.get("/persons")
+        request.get("/persons")
       end
     end
 
     describe "#search_by_field" do
       it "makes a get request to Pipedrive /searchResults with a field key and value" do
-        field_key = client.config["people_fields"]["middle_name"]
+        field_key = request.config["people_fields"]["middle_name"]
         field_type = "personField"
         return_item_ids = true
         term = "princess"
         url = "https://api.pipedrive.com/v1/searchResults/field?api_token=&field_key=#{field_key}&field_type=#{field_type}&return_item_ids=#{return_item_ids}&term=#{term}"
         stub_request(:get, url).to_return(status: 200, body: {success: true}.to_json)
-        client.search_by_field(type: :person, field: :middle_name, value: term)
+        request.search_by_field(type: :person, field: :middle_name, value: term)
       end
     end
 
@@ -40,7 +39,7 @@ module Pipekit
 
         stub_post("/persons", body, response)
 
-        expect(client.post(uri, body)).to be nil
+        expect(request.post(uri, body)).to be nil
       end
     end
 
@@ -49,7 +48,7 @@ module Pipekit
     end
 
     def default_query
-      { api_token: client.config[:api_token] }
+      { api_token: request.config[:api_token] }
     end
   end
 end

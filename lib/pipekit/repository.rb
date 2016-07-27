@@ -1,12 +1,12 @@
-require "pipekit/client"
+require "pipekit/request"
 require "pipekit/repository/persons_methods"
 require "pipekit/repository/person_fields_methods"
 require "pipekit/repository/deals_methods"
 
 module Pipekit
   class Repository
-    def initialize(uri, special_methods_module = nil, client = Pipekit::Client.new)
-      @uri = uri
+    def initialize(uri, special_methods_module = nil, client = Pipekit::Request.new)
+  new   @uri = uri
       @client = client
       extend(special_methods_module) if special_methods_module
     end
@@ -91,9 +91,9 @@ module Pipekit
       result.map { |item| get_by_id(item["id"]) }
     end
 
-    Persons = new("persons", Pipekit::Repository::PersonsMethods)
-    PersonFields = new("personFields", Pipekit::Repository::PersonFieldsMethods)
-    Deals = new("deals", Pipekit::Repository::DealsMethods)
-    Notes = new("notes")
+    #Persons = new("persons", Pipekit::Repository::PersonsMethods)
+    #PersonFields = new("personFields", Pipekit::Repository::PersonFieldsMethods)
+    #Deals = new("deals", Pipekit::Repository::DealsMethods)
+    #Notes = new("notes")
   end
 end

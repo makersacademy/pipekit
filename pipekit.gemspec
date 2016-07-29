@@ -6,8 +6,8 @@ require 'pipekit/version'
 Gem::Specification.new do |spec|
   spec.name          = "pipekit"
   spec.version       = Pipekit::VERSION
-  spec.authors       = ["jafrog"]
-  spec.email         = ["irina@makersacademy.com"]
+  spec.authors       = ["jafrog", "pitchinvasion", "spike01"]
+  spec.email         = ["irina@makersacademy.com", "leo@makersacademy.com", "spike@makersacademy.com"]
 
   spec.summary       = %q{Pipedrive API client for Ruby.}
   spec.description   = %q{Pipedrive API client for Ruby.}
@@ -35,5 +35,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "webmock"
   spec.add_development_dependency "pry"
-  spec.add_development_dependency "shoulda-matchers"
 end

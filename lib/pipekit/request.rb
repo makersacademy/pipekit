@@ -1,5 +1,9 @@
 require "httparty"
 
+# Add a parameter of @resource
+# then a result object can be returned in result from
+# this can then normalize the fields on the fly if they are configured
+
 module Pipekit
   class Request
     include HTTParty

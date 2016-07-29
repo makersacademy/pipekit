@@ -1,6 +1,9 @@
 api_token:
 api_url: https://api.pipedrive.com/v1
 normalize_fields: false
-person_fields:
-  middle_name: 123abc
+fields:
+  person:
+    middle_name: 123abc
+  deal:
+    age: 987cba
 filters:

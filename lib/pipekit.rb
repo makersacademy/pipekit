@@ -2,11 +2,11 @@ require "pipekit/configurable"
 require "httparty"
 require "pipekit/version"
 require "pipekit/request"
-require "pipekit/client"
 require "pipekit/repository"
 require "pipekit/person"
 require "pipekit/deal"
 require "pipekit/person_field"
+require "pipekit/note"
 
 module Pipekit
   include Configurable

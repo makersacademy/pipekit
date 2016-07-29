@@ -2,8 +2,6 @@ module Pipekit
   class PersonField
     include Repository
 
-    self.uri = "personFields"
-
     def get_by_id(id)
       request.get("/#{uri}").select { |element| element["id"] == id }
     end

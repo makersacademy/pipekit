@@ -1,7 +1,6 @@
 module Pipekit
   class Person
     include Repository
-    self.uri = "persons"
 
     def get_by_email(email)
       request.get("/#{uri}/find", term: email, search_by_email: 1)

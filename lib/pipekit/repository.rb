@@ -1,3 +1,4 @@
+class ConfigNotSetError < Exception; end
 module Pipekit
   module Repository
 
@@ -94,7 +95,8 @@ module Pipekit
     end
 
     def uri
-      self.class.uri
+      class_name = self.class.to_s.split("::").last
+      "#{class_name.downcase}s"
     end
   end
 end

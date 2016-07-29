@@ -7,10 +7,6 @@ module Pipekit
 
     subject(:request) { described_class.new }
 
-    before do
-      Pipekit.config_file_path = File.join(File.dirname(__FILE__), "..", "support", "config.yml")
-    end
-
     describe "#get" do
       it "makes a get request to Pipedrive with correct options" do
         stub_request(:get, "https://api.pipedrive.com/v1/persons?api_token=").to_return(status: 200, body: {success: true}.to_json)

@@ -7,7 +7,7 @@ module Pipekit
     end
 
     def all
-      request.get("/#{uri}")
+      get("/#{uri}")
     end
 
     # Public: Get all records from Pipedrive by **one** of the record's fields.
@@ -85,8 +85,13 @@ module Pipekit
       get_by_field(field: field, value: args[0])
     end
 
+    def get(uri)
+      result = request.get(uri)
+      NormalizeFields.with(result) if Pipekit.config["normalize_fields"]
+    end
+
     def get_by_id(id)
-      [request.get("/#{uri}/#{id}")]
+      [get("/#{uri}/#{id}")]
     end
 
     def get_by_field(field:, value:)
@@ -95,8 +100,11 @@ module Pipekit
     end
 
     def uri
-      class_name = self.class.to_s.split("::").last
-      "#{class_name.downcase}s"
+      "#{name}s"
+    end
+
+    def name
+      self.class.to_s.split("::").last.downcase
     end
   end
 end

@@ -2,12 +2,12 @@ class ConfigNotSetError < Exception; end
 module Pipekit
   module Repository
 
-    def initialize(request = Pipekit::Request.new)
-      @request = request
+    def initialize(request = nil)
+      @request = request || Request.new(self.class)
     end
 
     def all
-      get("/#{uri}")
+      get
     end
 
     # Public: Get all records from Pipedrive by **one** of the record's fields.
@@ -50,7 +50,7 @@ module Pipekit
     #
     # Returns nothing.
     def create(fields)
-      request.post("/#{uri}", fields)
+      request.post(fields)
     end
 
     # Public: Updates a record on Pipedrive.
@@ -63,15 +63,17 @@ module Pipekit
     #
     # Returns nothing.
     def update(id, fields)
-      request.put("/#{uri}/#{id}", fields)
+      request.put(id, fields)
     end
 
     def self.included(base)
-      base.send :extend, ClassMethods
+      base.extend(ClassMethods)
     end
 
     module ClassMethods
-      attr_accessor :uri
+      def resource
+        to_s.split("::").last.tap { |name| name[0] = name[0].downcase }
+      end
     end
 
     private
@@ -85,26 +87,21 @@ module Pipekit
       get_by_field(field: field, value: args[0])
     end
 
-    def get(uri)
-      result = request.get(uri)
-      NormalizeFields.with(result) if Pipekit.config["normalize_fields"]
+    def get(id = nil)
+      request.get(id)
     end
 
     def get_by_id(id)
-      [get("/#{uri}/#{id}")]
+      [get(id)]
     end
 
     def get_by_field(field:, value:)
-      result = request.search_by_field(type: uri, field: field, value: value)
+      result = request.search_by_field(field: field, value: value)
       result.map { |item| get_by_id(item["id"]) }.flatten
     end
 
-    def uri
-      "#{name}s"
-    end
-
-    def name
-      self.class.to_s.split("::").last.downcase
+    def resource
+      self.class.resource
     end
   end
 end

@@ -12,7 +12,7 @@ RSpec.describe Pipekit::Person do
 
       repository.get_by_email(email)
 
-      expect(request).to have_received(:get).with("/persons/find", term: email, search_by_email: 1)
+      expect(request).to have_received(:get).with("find", term: email, search_by_email: 1)
     end
 
     it "gets by name" do
@@ -20,7 +20,7 @@ RSpec.describe Pipekit::Person do
 
       repository.get_by_name(name)
 
-      expect(request).to have_received(:get).with("/persons/find", term: name)
+      expect(request).to have_received(:get).with("find", term: name)
     end
   end
 end

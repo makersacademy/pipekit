@@ -1,6 +1,5 @@
 api_token:
 api_url: https://api.pipedrive.com/v1
-normalize_fields: false
 fields:
   person:
     middle_name: 123abc

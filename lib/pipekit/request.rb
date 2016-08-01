@@ -13,6 +13,10 @@ module Pipekit
     base_uri PIPEDRIVE_URL
     format :json
 
+    def initialize(resource)
+      @resource = resource
+    end
+
     # Public: Pipedrive /searchField API call.
     #
     # type - Type of the field:
@@ -24,43 +28,46 @@ module Pipekit
     #
     # Examples
     #
-    #   search_by_field(type: :person, field: :cohort, value: 119)
-    #   search_by_field(type: :person, field: :github_username, value: "octocat")
+    #   search_by_field(field: :cohort, value: 119)
+    #   search_by_field(field: :github_username, value: "octocat")
     #
     # Returns an array of Hashes or nil.
-    def search_by_field(type:, field:, value:)
-      options = {field_type: "#{type}Field",
-                 field_key: config["#{type.to_s.pluralize}_fields"][field],
-                 return_item_ids: true}
+    def search_by_field(field:, value:)
+      query = {field_type: "#{resource}Field",
+                 field_key: config["fields"]["person"][field],
+                 return_item_ids: true,
+                 term: value
+      }
 
-      get("/searchResults/field", options.merge(term: value))
+      result_from self.class.get("/searchResults/field", options(query: query))
     end
 
-    def get(uri, query = {})
-      result_from self.class.get(uri, options(query: query))
+    def get(suffix = nil, query = {})
+      result_from self.class.get(uri(suffix), options(query: query))
     end
 
-    def put(uri, body)
-      result_from self.class.put(uri, options(body: body))
+    def put(id, body)
+      result_from self.class.put(uri(id), options(body: body))
     end
 
-    def post(uri, body)
+    def post(body)
       result_from self.class.post(uri, options(body: body))
     end
 
     private
 
+    attr_reader :resource
+
     def config
       Pipekit.config
     end
 
-    def result_from(response)
-      return nil unless success?(response)
-      response.parsed_response["data"]
+    def uri(id = nil)
+      "/#{resource}s/#{id}".chomp("/")
     end
 
-    def success?(response)
-      response.parsed_response["success"]
+    def result_from(response)
+      Response.new(resource, response)
     end
 
     def options(query: {}, body: {})

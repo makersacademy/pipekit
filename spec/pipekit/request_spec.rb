@@ -36,9 +36,11 @@ module Pipekit
 
     describe "#put" do
       it "makes a put request to Pipedrive with the correct options" do
-        fields = {"name" => "Dave"}
+        fields = {"middle_name" => "Dave"}
+        custom_field = Config.field("person", "middle_name")
         id = "123"
-        stub = stub_put("persons/123?api_token=")
+
+        stub = stub_put("persons/123?api_token=", "#{custom_field}=Dave")
 
         request.put(id, fields)
 
@@ -48,8 +50,10 @@ module Pipekit
 
     describe "#post" do
       it "makes a post request to Pipedrive with the correct options" do
-        fields = {"name" => "Bob"}
-        stub = stub_post("persons?api_token=", "name=Bob")
+        fields = {"name" => "Bob", "middle_name" => "Milhous"}
+        custom_field = Config.field("person", "middle_name")
+
+        stub = stub_post("persons?api_token=", "name=Bob&#{custom_field}=Milhous")
 
         request.post(fields)
 
@@ -61,8 +65,10 @@ module Pipekit
       stub_request(:get, "#{Pipekit::Request::PIPEDRIVE_URL}/#{uri}").to_return(status: 200, body: {success: true, data: response}.to_json)
     end
 
-    def stub_put(uri)
-      stub_request(:put, "#{Pipekit::Request::PIPEDRIVE_URL}/#{uri}").to_return(status: 200, body: {success: true}.to_json)
+    def stub_put(uri, body)
+      stub_request(:put, "#{Pipekit::Request::PIPEDRIVE_URL}/#{uri}")
+        .with(body: body)
+        .to_return(status: 200, body: {success: true}.to_json)
     end
 
     def stub_post(uri, body)

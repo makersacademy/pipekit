@@ -70,8 +70,28 @@ module Pipekit
     def options(query: {}, body: {})
       {
         query: {api_token: Config.fetch("api_token") }.merge(query),
-        body: body
+        body: parse_body(body)
       }
+    end
+
+    # Replaces custom fields with their Pipedrive ID
+    # if the ID is defined in the configuration
+    #
+    # So if the body looked like this with a custom field
+    # called middle_name:
+    #
+    # { middle_name: "Dave" }
+    #
+    # And it has a Pipedrive ID ("123abc"), this will put in this custom ID
+    #
+    # { "123abc": "Dave" }
+    #
+    # meaning you don't have to worry about the custom IDs
+    def parse_body(body)
+      body.reduce({}) do |result, (field, value)|
+        field = Config.field(resource, field)
+        result.tap { |result| result[field] = value }
+      end
     end
   end
 end

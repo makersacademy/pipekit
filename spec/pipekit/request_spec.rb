@@ -20,7 +20,7 @@ module Pipekit
 
     describe "#search_by_field" do
       it "makes a get request to Pipedrive /searchResults with a field key and value" do
-        field_key = Pipekit.config["fields"]["person"]["middle_name"]
+        field_key = Config.field("person", "middle_name")
         field_type = "personField"
         term = "princess"
         url = "searchResults/field?api_token=&field_key=#{field_key}&field_type=#{field_type}&return_item_ids=true&term=#{term}"

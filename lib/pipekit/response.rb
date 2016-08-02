@@ -6,7 +6,7 @@ module Pipekit
     end
 
     def [](key)
-      key = Pipekit.custom_field(resource, key)
+      key = Config.field(resource, key)
       data[key]
     end
 

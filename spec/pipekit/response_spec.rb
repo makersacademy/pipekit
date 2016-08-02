@@ -22,7 +22,7 @@ module Pipekit
 
     describe "fetching custom fields" do
       it "converts custom field ids into their human readable name" do
-        middle_name_label = Pipekit.config["fields"]["person"]["middle_name"]
+        middle_name_label = Config.field("person", "middle_name")
         params = {
           "data" => {
             middle_name_label => "Milhous",
@@ -38,7 +38,7 @@ module Pipekit
       end
 
       it "still allows access using the original Pipedrive ID" do
-        middle_name_label = Pipekit.config["fields"]["person"]["middle_name"]
+        middle_name_label = Config.field("person", "middle_name")
         params = {
           "data" => {
             middle_name_label => "Test",

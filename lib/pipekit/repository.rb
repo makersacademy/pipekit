@@ -1,4 +1,3 @@
-class ConfigNotSetError < Exception; end
 module Pipekit
   module Repository
 

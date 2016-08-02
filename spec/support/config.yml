@@ -1,8 +1,7 @@
 api_token:
-api_url: https://api.pipedrive.com/v1
+test: <%= 1 + 1 %>
 fields:
   person:
     middle_name: 123abc
   deal:
     age: 987cba
-filters:

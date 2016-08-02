@@ -34,8 +34,9 @@ module Pipekit
     # Returns an array of Hashes or nil.
     def search_by_field(field:, value:)
       query = {field_type: "#{resource}Field",
-                 field_key: config["fields"]["person"][field],
+               field_key: Config.field(resource, field),
                  return_item_ids: true,
+
                  term: value
       }
 
@@ -58,10 +59,6 @@ module Pipekit
 
     attr_reader :resource
 
-    def config
-      Pipekit.config
-    end
-
     def uri(id = nil)
       "/#{resource}s/#{id}".chomp("/")
     end
@@ -72,7 +69,7 @@ module Pipekit
 
     def options(query: {}, body: {})
       {
-        query: {api_token: config[:api_token] }.merge(query),
+        query: {api_token: Config.fetch("api_token") }.merge(query),
         body: body
       }
     end

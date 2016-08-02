@@ -13,6 +13,7 @@ Gem::Specification.new do |spec|
   spec.description   = %q{Pipedrive API client for Ruby.}
   spec.homepage      = "https://github.com/makersacademy/pipekit"
   spec.license       = "MIT"
+  spec.required_ruby_version = '>= 1.9.1'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.

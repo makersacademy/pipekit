@@ -33,6 +33,15 @@ RSpec.shared_examples "a repository" do
 
         expect(repository.where(id: id)).to eq([:response])
       end
+
+      it "returns an empty array when request was unsuccessful" do
+        bad_response = double(:response, success?: false)
+        id = 123
+
+        allow(request).to receive(:get).with(id).and_return(bad_response)
+
+        expect(repository.where(id: id)).to eq([])
+      end
     end
 
     describe "find_by" do

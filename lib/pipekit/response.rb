@@ -1,8 +1,9 @@
 module Pipekit
   class Response
-    def initialize(resource, body)
+    def initialize(resource, data, pipedrive_success = true)
       @resource = resource
-      @body = body
+      @data = data
+      @pipedrive_success = pipedrive_success
     end
 
     def [](key)
@@ -11,15 +12,11 @@ module Pipekit
     end
 
     def success?
-      body["success"]
+      pipedrive_success && !data.empty?
     end
 
     private
 
-    attr_reader :body, :resource
-
-    def data
-      body["data"]
-    end
+    attr_reader :data, :resource, :pipedrive_success
   end
 end

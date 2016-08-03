@@ -65,7 +65,13 @@ module Pipekit
     end
 
     def result_from(response)
-      Response.new(resource, response)
+      raise UnsuccessfulRequestError.new(response) unless response["success"]
+      raise ResourceNotFoundError.new(response) unless resource_found?(response)
+      data = response["data"]
+      success = response["success"]
+
+      return Response.new(resource, data, success) unless data.is_a? Array
+      data.map { |details| Response.new(resource, details, success) }
     end
 
     def options(query: {}, body: {})
@@ -93,6 +99,30 @@ module Pipekit
         field = Config.field(resource, field)
         result.tap { |result| result[field] = value }
       end
+    end
+
+    def resource_found?(response)
+      !(response["data"].nil? || response["data"].empty?)
+    end
+  end
+
+  class ResourceNotFoundError < StandardError
+    def initialize(response)
+      @response = response
+    end
+
+    def message
+      "Resource not found: #{@response}"
+    end
+  end
+
+  class UnsuccessfulRequestError < StandardError
+    def initialize(response)
+      @response = response
+    end
+
+    def message
+      "Request not successful: #{@response}"
     end
   end
 end

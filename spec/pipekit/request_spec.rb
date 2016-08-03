@@ -9,12 +9,21 @@ module Pipekit
 
     describe "#get" do
       it "makes a get request to Pipedrive with correct options" do
-        fields = {"name" => "Spike"}
-        stub_get("persons?api_token=", fields)
+        result = {"name" => "Spike"}
+        stub_get("persons?api_token=", result)
 
         response = request.get
 
         expect(response["name"]).to eq("Spike")
+      end
+
+      it "handles when the request returns an array of data" do
+        result = [{"name" => "Dan"}]
+        stub_get("persons?api_token=", result)
+
+        response = request.get
+
+        expect(response.first["name"]).to eq("Dan")
       end
     end
 
@@ -61,20 +70,34 @@ module Pipekit
       end
     end
 
-    def stub_get(uri, response)
-      stub_request(:get, "#{Pipekit::Request::PIPEDRIVE_URL}/#{uri}").to_return(status: 200, body: {success: true, data: response}.to_json)
+    describe "raising errors" do
+      it "raises an error when response is unsuccessful" do
+        stub_get("persons?api_token=", "name=Bob", false)
+
+        expect{request.get}.to raise_error(UnsuccessfulRequestError) 
+      end
+
+      it "raises an error when resource is not found" do
+        stub_get("persons?api_token=", "", true)
+
+        expect{request.get}.to raise_error(ResourceNotFoundError) 
+      end
+    end
+
+    def stub_get(uri, response, success = true)
+      stub_request(:get, "#{Pipekit::Request::PIPEDRIVE_URL}/#{uri}").to_return(status: 200, body: {success: success, data: response}.to_json)
     end
 
     def stub_put(uri, body)
       stub_request(:put, "#{Pipekit::Request::PIPEDRIVE_URL}/#{uri}")
         .with(body: body)
-        .to_return(status: 200, body: {success: true}.to_json)
+        .to_return(status: 200, body: {success: true, data: "not empty"}.to_json)
     end
 
     def stub_post(uri, body)
       stub_request(:post, "#{Pipekit::Request::PIPEDRIVE_URL}/#{uri}")
         .with(body: body)
-        .to_return(status: 200, body: {success: true}.to_json)
+        .to_return(status: 200, body: {success: true, data: "not empty"}.to_json)
     end
   end
 end

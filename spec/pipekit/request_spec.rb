@@ -9,12 +9,21 @@ module Pipekit
 
     describe "#get" do
       it "makes a get request to Pipedrive with correct options" do
-        fields = {"name" => "Spike"}
-        stub_get("persons?api_token=", fields)
+        result = {"name" => "Spike"}
+        stub_get("persons?api_token=", result)
 
         response = request.get
 
         expect(response["name"]).to eq("Spike")
+      end
+
+      it "handles when the request returns an array of data" do
+        result = [{"name" => "Dan"}]
+        stub_get("persons?api_token=", result)
+
+        response = request.get
+
+        expect(response.first["name"]).to eq("Dan")
       end
     end
 

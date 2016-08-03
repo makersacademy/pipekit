@@ -1,33 +1,29 @@
 module Pipekit
   RSpec.describe Response do
     it "acts like a hash" do
-      params = {
-        "data" => {
-          "name" => "Dave"
-        }
+      data = {
+        "name" => "Dave"
       }
-      response = described_class.new("person", params)
+
+      response = described_class.new("person", data)
 
       expect(response["name"]).to eq("Dave")
     end
 
     it "knows if it is a successful response" do
-      params = {
-        "success" => true
-      }
-      response = described_class.new("person", params)
+      successful_response = described_class.new("person", {}, true)
+      unsuccessful_response = described_class.new("person", {}, false)
 
-      expect(response).to be_a_success
+      expect(successful_response).to be_a_success
+      expect(unsuccessful_response).not_to be_a_success
     end
 
     describe "fetching custom fields" do
       it "converts custom field ids into their human readable name" do
         middle_name_label = Config.field("person", "middle_name")
         params = {
-          "data" => {
-            middle_name_label => "Milhous",
-            "first_name" => "Richard"
-          }
+          middle_name_label => "Milhous",
+          "first_name" => "Richard"
         }
 
         response = described_class.new("person", params)
@@ -40,9 +36,7 @@ module Pipekit
       it "still allows access using the original Pipedrive ID" do
         middle_name_label = Config.field("person", "middle_name")
         params = {
-          "data" => {
-            middle_name_label => "Test",
-          }
+          middle_name_label => "Test",
         }
 
         response = described_class.new("person", params)

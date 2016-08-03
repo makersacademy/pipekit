@@ -1,8 +1,9 @@
 module Pipekit
   class Response
-    def initialize(resource, body)
+    def initialize(resource, data, success = true)
       @resource = resource
-      @body = body
+      @data = data
+      @success = success
     end
 
     def [](key)
@@ -11,15 +12,11 @@ module Pipekit
     end
 
     def success?
-      body["success"]
+      success
     end
 
     private
 
-    attr_reader :body, :resource
-
-    def data
-      body["data"]
-    end
+    attr_reader :data, :resource, :success
   end
 end

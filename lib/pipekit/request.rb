@@ -65,7 +65,11 @@ module Pipekit
     end
 
     def result_from(response)
-      Response.new(resource, response)
+      data = response["data"]
+      success = response["success"]
+
+      return Response.new(resource, data, success) unless data.is_a? Array
+      data.map { |details| Response.new(resource, details, success) }
     end
 
     def options(query: {}, body: {})

@@ -2,7 +2,7 @@ module Pipekit
   module Repository
 
     def initialize(request = nil)
-      @request = request || Request.new(self.class)
+      @request = request || Request.new(resource)
     end
 
     def all

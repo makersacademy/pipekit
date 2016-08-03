@@ -15,6 +15,7 @@ module Pipekit
 
     def initialize(resource)
       @resource = resource
+      self.class.debug_output $stdout if Config.fetch("debug_requests")
     end
 
     # Public: Pipedrive /searchField API call.

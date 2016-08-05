@@ -6,6 +6,10 @@ module Pipekit
       expect(described_class.fetch("test")).to eq(2)
     end
 
+    it "can provide a default value if no config value exists" do
+      expect(described_class.fetch("non_existent value", :default)).to eq(:default)
+    end
+
     it "raises an error if no config file has been set" do
       file_path = described_class.file_path
       Pipekit.config_file_path = nil

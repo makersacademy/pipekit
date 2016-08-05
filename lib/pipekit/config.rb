@@ -9,11 +9,11 @@ module Pipekit
       end
 
       def custom_fields
-        config.fetch("fields", {})
+        fetch("fields", {})
       end
 
-      def fetch(key)
-        config[key.to_s]
+      def fetch(key, default = nil)
+        config.fetch(key.to_s, default)
       end
 
       def file_path

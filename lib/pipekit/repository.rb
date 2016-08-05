@@ -20,8 +20,11 @@ module Pipekit
     #   where(id: 123)
     #
     # Returns array of Hashes.
-    def where(options)
+    def where(options, raise_error = false)
       send("get_by_#{options.keys.first}", options.values.first)
+    rescue ResourceNotFoundError => error
+      raise error if raise_error
+      []
     end
 
     # Public: Get the first record by **one** field from Pipedrive.
@@ -36,7 +39,7 @@ module Pipekit
     #
     # Returns a Hash or nil if none found.
     def find_by(options)
-      where(options).first
+      where(options, true).first
     end
 
     # Public: Create a record on Pipedrive.

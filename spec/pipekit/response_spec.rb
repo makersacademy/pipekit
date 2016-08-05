@@ -10,18 +10,6 @@ module Pipekit
       expect(response["name"]).to eq("Dave")
     end
 
-    it "knows if it is a successful response" do
-      successful_response = described_class.new("person", {name: "Dave"}, true)
-
-      expect(successful_response).to be_a_success
-    end
-
-    it "knows if it is an unsuccessful response when pipedrive indicates no success " do
-      unsuccessful_response = described_class.new("person", {name: "Dave"}, false)
-
-      expect(unsuccessful_response).not_to be_a_success
-    end
-
     describe "fetching custom fields" do
       it "converts custom field ids into their human readable name" do
         middle_name_label = Config.field("person", "middle_name")

@@ -68,10 +68,9 @@ module Pipekit
       raise UnsuccessfulRequestError.new(response) unless response["success"]
       raise ResourceNotFoundError.new(response) unless resource_found?(response)
       data = response["data"]
-      success = response["success"]
 
-      return Response.new(resource, data, success) unless data.is_a? Array
-      data.map { |details| Response.new(resource, details, success) }
+      return Response.new(resource, data) unless data.is_a? Array
+      data.map { |details| Response.new(resource, details) }
     end
 
     def options(query: {}, body: {})

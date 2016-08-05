@@ -35,10 +35,9 @@ RSpec.shared_examples "a repository" do
       end
 
       it "returns an empty array when request was unsuccessful" do
-        bad_response = double(:response, success?: false)
         id = 123
 
-        allow(request).to receive(:get).with(id).and_return(bad_response)
+        allow(request).to receive(:get).and_raise(Pipekit::ResourceNotFoundError.new(:response))
 
         expect(repository.where(id: id)).to eq([])
       end
@@ -51,6 +50,15 @@ RSpec.shared_examples "a repository" do
         allow(request).to receive(:get).with(data[:id]).and_return(:response)
 
         expect(repository.find_by(id: 123)).to eq(:response)
+      end
+
+      it "raises an error when resource not found" do
+        resource_error = Pipekit::ResourceNotFoundError.new(:response)
+        data = {id: 123}
+
+        allow(request).to receive(:get).and_raise(resource_error)
+
+        expect{repository.find_by(id: 123)}.to raise_error(resource_error)
       end
     end
   end

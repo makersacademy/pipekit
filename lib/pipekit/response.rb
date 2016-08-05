@@ -1,6 +1,6 @@
 module Pipekit
   class Response
-    def initialize(resource, data, pipedrive_success = true)
+    def initialize(resource, data)
       @resource = resource
       @data = data
       @pipedrive_success = pipedrive_success

@@ -5,15 +5,15 @@ module Pipekit
       attr_writer :file_path
 
       def field(resource, key)
-        custom_fields.fetch(resource, {}).fetch(key.to_s, key)
+        custom_fields.fetch(resource, {}).fetch(key.to_s, key.to_s)
       end
 
       def custom_fields
-        config.fetch("fields", {})
+        fetch("fields", {})
       end
 
-      def fetch(key)
-        config[key.to_s]
+      def fetch(key, default = nil)
+        config.fetch(key.to_s, default)
       end
 
       def file_path

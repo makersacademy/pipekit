@@ -70,6 +70,19 @@ module Pipekit
       end
     end
 
+    describe "#post" do
+      it "makes a post request to Pipedrive with the correct options" do
+        fields = {"name" => "Bob", "middle_name" => "Milhous"}
+        custom_field = Config.field("person", "middle_name")
+
+        stub = stub_post("persons?api_token=", "name=Bob&#{custom_field}=Milhous")
+
+        request.post(fields)
+
+        expect(stub).to have_been_requested
+      end
+    end
+
     describe "raising errors" do
       it "raises an error when response is unsuccessful" do
         stub_get("persons?api_token=", "name=Bob", false)

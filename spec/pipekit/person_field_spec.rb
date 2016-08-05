@@ -2,7 +2,7 @@ RSpec.describe Pipekit::PersonField do
   subject(:repository) { described_class.new(request) }
   let(:request) { instance_double("Pipedrive::Request") }
 
-  it_behaves_like "a repository"
+  it_behaves_like "a repository", true
 
   it "finds by id" do
     response = [{"id" => 1}, {"id" => 2}]

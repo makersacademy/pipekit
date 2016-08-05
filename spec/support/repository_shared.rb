@@ -1,4 +1,4 @@
-RSpec.shared_examples "a repository" do
+RSpec.shared_examples "a repository" do |skip_tests_for_where|
 
   subject(:repository) { described_class.new(request) }
 
@@ -11,9 +11,7 @@ RSpec.shared_examples "a repository" do
     end
   end
 
-  # personFields over-rides the behaviour of get_by_id so for that resource we
-  # need to skip these tests
-  unless described_class.resource == "personField"
+  unless skip_tests_for_where
     describe "#where" do
       it "returns records matching given field" do
         search_data = {field: "fake_field", value: "fake value"}
@@ -40,6 +38,14 @@ RSpec.shared_examples "a repository" do
         allow(request).to receive(:get).and_raise(Pipekit::ResourceNotFoundError.new(:response))
 
         expect(repository.where(id: id)).to eq([])
+      end
+
+      it "searches by id" do
+        id = 123
+
+        allow(request).to receive(:get).with(id).and_return(:response)
+
+        expect(repository.where(id: id)).to eq([:response])
       end
     end
 

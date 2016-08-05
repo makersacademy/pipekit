@@ -3,20 +3,15 @@ module Pipekit
     def initialize(resource, data)
       @resource = resource
       @data = data
-      @pipedrive_success = pipedrive_success
     end
 
     def [](key)
       key = Config.field(resource, key)
-      data[key]
-    end
-
-    def success?
-      pipedrive_success && !data.empty?
+      data[key.to_s]
     end
 
     private
 
-    attr_reader :data, :resource, :pipedrive_success
+    attr_reader :data, :resource
   end
 end

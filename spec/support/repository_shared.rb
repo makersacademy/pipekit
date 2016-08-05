@@ -1,4 +1,4 @@
-RSpec.shared_examples "a repository" do
+RSpec.shared_examples "a repository" do |skip_tests_for_where|
 
   subject(:repository) { described_class.new(request) }
 
@@ -11,9 +11,7 @@ RSpec.shared_examples "a repository" do
     end
   end
 
-  # personFields over-rides the behaviour of get_by_id so for that resource we
-  # need to skip these tests
-  unless described_class.resource == "personField"
+  unless skip_tests_for_where
     describe "#where" do
       it "returns records matching given field" do
         search_data = {field: "fake_field", value: "fake value"}
@@ -45,7 +43,6 @@ RSpec.shared_examples "a repository" do
       end
     end
   end
-
 
   describe "create" do
     it "creates a record in a repository" do

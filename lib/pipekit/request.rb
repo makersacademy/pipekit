@@ -36,9 +36,8 @@ module Pipekit
     def search_by_field(field:, value:)
       query = {field_type: "#{resource}Field",
                field_key: Config.field(resource, field),
-                 return_item_ids: true,
-
-                 term: value
+               return_item_ids: true,
+               term: value
       }
 
       result_from self.class.get("/searchResults/field", options(query: query))

@@ -1,53 +1,89 @@
-require 'webmock'
+require 'webmock/rspec'
 
 module Pipekit
   RSpec.describe Request do
     include WebMock::API
     WebMock.enable!
 
-    subject(:request) { described_class.new }
-
-    before do
-      Pipekit.config_file_path = File.join(File.dirname(__FILE__), "..", "support", "config.yml")
-    end
+    subject(:request) { described_class.new("person") }
 
     describe "#get" do
       it "makes a get request to Pipedrive with correct options" do
-        stub_request(:get, "https://api.pipedrive.com/v1/persons?api_token=").to_return(status: 200, body: {success: true}.to_json)
-        request.get("/persons")
+        result = {"name" => "Spike"}
+        stub_get("persons?api_token=", result)
+
+        response = request.get
+
+        expect(response["name"]).to eq("Spike")
+      end
+
+      it "handles when the request returns an array of data" do
+        result = [{"name" => "Dan"}]
+        stub_get("persons?api_token=", result)
+
+        response = request.get
+
+        expect(response.first["name"]).to eq("Dan")
       end
     end
 
     describe "#search_by_field" do
       it "makes a get request to Pipedrive /searchResults with a field key and value" do
-        field_key = Pipekit.config["people_fields"]["middle_name"]
+        field_key = Config.field("person", "middle_name")
         field_type = "personField"
-        return_item_ids = true
         term = "princess"
-        url = "https://api.pipedrive.com/v1/searchResults/field?api_token=&field_key=#{field_key}&field_type=#{field_type}&return_item_ids=#{return_item_ids}&term=#{term}"
-        stub_request(:get, url).to_return(status: 200, body: {success: true}.to_json)
-        request.search_by_field(type: :person, field: :middle_name, value: term)
+        url = "searchResults/field?api_token=&field_key=#{field_key}&field_type=#{field_type}&return_item_ids=true&term=#{term}"
+        response = { "name" => "middle name"}
+
+        stub_get(url, response)
+
+        result = request.search_by_field(field: :middle_name, value: term)
+
+        expect(result["name"]).to eq("middle name")
       end
     end
 
-    context "Bad requests" do
-      it "shows an error when an unsuccessful request is made" do
-        uri = "/persons"
-        body = {name: "Foo", test: "data"}
-        response = double(:response, parsed_response: {"data" => "foo", "success" => false})
+    describe "#put" do
+      it "makes a put request to Pipedrive with the correct options" do
+        fields = {"middle_name" => "Dave"}
+        custom_field = Config.field("person", "middle_name")
+        id = "123"
 
-        stub_post("/persons", body, response)
+        stub = stub_put("persons/123?api_token=", "#{custom_field}=Dave")
 
-        expect(request.post(uri, body)).to be nil
+        request.put(id, fields)
+
+        expect(stub).to have_been_requested
       end
     end
 
-    def stub_post(uri, body, response)
-      allow(described_class).to receive(:post).with(uri, query: default_query, body: body).and_return(response)
+    describe "#post" do
+      it "makes a post request to Pipedrive with the correct options" do
+        fields = {"name" => "Bob", "middle_name" => "Milhous"}
+        custom_field = Config.field("person", "middle_name")
+
+        stub = stub_post("persons?api_token=", "name=Bob&#{custom_field}=Milhous")
+
+        request.post(fields)
+
+        expect(stub).to have_been_requested
+      end
     end
 
-    def default_query
-      { api_token: Pipekit.config[:api_token] }
+    def stub_get(uri, response)
+      stub_request(:get, "#{Pipekit::Request::PIPEDRIVE_URL}/#{uri}").to_return(status: 200, body: {success: true, data: response}.to_json)
+    end
+
+    def stub_put(uri, body)
+      stub_request(:put, "#{Pipekit::Request::PIPEDRIVE_URL}/#{uri}")
+        .with(body: body)
+        .to_return(status: 200, body: {success: true}.to_json)
+    end
+
+    def stub_post(uri, body)
+      stub_request(:post, "#{Pipekit::Request::PIPEDRIVE_URL}/#{uri}")
+        .with(body: body)
+        .to_return(status: 200, body: {success: true}.to_json)
     end
   end
 end

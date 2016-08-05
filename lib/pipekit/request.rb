@@ -1,5 +1,9 @@
 require "httparty"
 
+# Add a parameter of @resource
+# then a result object can be returned in result from
+# this can then normalize the fields on the fly if they are configured
+
 module Pipekit
   class Request
     include HTTParty
@@ -8,6 +12,11 @@ module Pipekit
 
     base_uri PIPEDRIVE_URL
     format :json
+
+    def initialize(resource)
+      @resource = resource
+      self.class.debug_output $stdout if Config.fetch("debug_requests")
+    end
 
     # Public: Pipedrive /searchField API call.
     #
@@ -20,50 +29,73 @@ module Pipekit
     #
     # Examples
     #
-    #   search_by_field(type: :person, field: :cohort, value: 119)
-    #   search_by_field(type: :person, field: :github_username, value: "octocat")
+    #   search_by_field(field: :cohort, value: 119)
+    #   search_by_field(field: :github_username, value: "octocat")
     #
     # Returns an array of Hashes or nil.
-    def search_by_field(type:, field:, value:)
-      options = {field_type: "#{type}Field",
-                 field_key: config["#{type.to_s.pluralize}_fields"][field],
-                 return_item_ids: true}
+    def search_by_field(field:, value:)
+      query = {field_type: "#{resource}Field",
+               field_key: Config.field(resource, field),
+               return_item_ids: true,
+               term: value
+      }
 
-      get("/searchResults/field", options.merge(term: value))
+      result_from self.class.get("/searchResults/field", options(query: query))
     end
 
-    def get(uri, query = {})
-      result_from self.class.get(uri, options(query: query))
+    def get(suffix = nil, query = {})
+      result_from self.class.get(uri(suffix), options(query: query))
     end
 
-    def put(uri, body)
-      result_from self.class.put(uri, options(body: body))
+    def put(id, body)
+      result_from self.class.put(uri(id), options(body: body))
     end
 
-    def post(uri, body)
+    def post(body)
       result_from self.class.post(uri, options(body: body))
     end
 
     private
 
-    def config
-      Pipekit.config
+    attr_reader :resource
+
+    def uri(id = nil)
+      "/#{resource}s/#{id}".chomp("/")
     end
 
     def result_from(response)
-      return nil unless success?(response)
-      response.parsed_response["data"]
-    end
+      data = response["data"]
+      success = response["success"]
 
-    def success?(response)
-      response.parsed_response["success"]
+      return Response.new(resource, data, success) unless data.is_a? Array
+      data.map { |details| Response.new(resource, details, success) }
     end
 
     def options(query: {}, body: {})
       {
-        query: {api_token: config[:api_token] }.merge(query),
-        body: body
+        query: {api_token: Config.fetch("api_token") }.merge(query),
+        body: parse_body(body)
       }
+    end
+
+    # Replaces custom fields with their Pipedrive ID
+    # if the ID is defined in the configuration
+    #
+    # So if the body looked like this with a custom field
+    # called middle_name:
+    #
+    # { middle_name: "Dave" }
+    #
+    # And it has a Pipedrive ID ("123abc"), this will put in this custom ID
+    #
+    # { "123abc": "Dave" }
+    #
+    # meaning you don't have to worry about the custom IDs
+    def parse_body(body)
+      body.reduce({}) do |result, (field, value)|
+        field = Config.field(resource, field)
+        result.tap { |result| result[field] = value }
+      end
     end
   end
 end

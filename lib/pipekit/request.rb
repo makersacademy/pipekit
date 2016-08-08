@@ -9,6 +9,7 @@ module Pipekit
     include HTTParty
 
     PIPEDRIVE_URL = "https://api.pipedrive.com/v1"
+    DEFAULT_PAGINATION_LIMIT = 500
 
     base_uri PIPEDRIVE_URL
     format :json
@@ -32,7 +33,8 @@ module Pipekit
     #   search_by_field(field: :cohort, value: 119)
     #   search_by_field(field: :github_username, value: "octocat")
     #
-    # Returns an array of Hashes or nil.
+    # Returns an array of Response objects or throws a ResourceNotFoundError if
+    # it couldn't find anything.
     def search_by_field(field:, value:)
       query = {field_type: "#{resource}Field",
                field_key: Config.field(resource, field),
@@ -43,8 +45,29 @@ module Pipekit
       result_from self.class.get("/searchResults/field", options(query: query))
     end
 
-    def get(suffix = nil, query = {})
-      result_from self.class.get(uri(suffix), options(query: query))
+    # Public: Pipedrive GET API call - does a GET request to the Pipedrive API
+    # based on the resource passed in the initialiser
+    #
+    # id - If the resource being searched for has an id
+    # query - An optional query string
+    # start - The offset with which to start the query
+    #
+    # As long as "request_all_pages" is not set to false in the config this will
+    # recursively call `#get` until all the pages of the request have been
+    # fetched from pipedrive
+    # Pipedrive until everything available has been received
+    def get(id = nil, query = {})
+      _get(id, query)
+    end
+
+    def _get(id, query, start = 0, result = [], fetch_next_request = true)
+      return result unless fetch_next_request
+
+      response = self.class.get(uri(id), options(query: {limit: pagination_limit, start: start}.merge(query)))
+      pagination = pagination_data(response)
+      result = result_from(response, result)
+
+      _get(id, query, pagination["next_start"], result, fetch_next_request?(pagination))
     end
 
     def put(id, body)
@@ -63,18 +86,28 @@ module Pipekit
       "/#{resource}s/#{id}".chomp("/")
     end
 
-    def result_from(response)
+    def pagination_data(response)
+      response
+        .fetch("additional_data", {})
+        .fetch("pagination", {})
+    end
+
+    def fetch_next_request?(pagination)
+      Config.fetch("request_all_pages", true) && pagination["more_items_in_collection"]
+    end
+
+    def result_from(response, previous_result = [])
       raise UnsuccessfulRequestError.new(response) unless response["success"]
       raise ResourceNotFoundError.new(response) unless resource_found?(response)
       data = response["data"]
 
       return Response.new(resource, data) unless data.is_a? Array
-      data.map { |details| Response.new(resource, details) }
+      previous_result + data.map { |details| Response.new(resource, details) }
     end
 
     def options(query: {}, body: {})
       {
-        query: {api_token: Config.fetch("api_token") }.merge(query),
+        query: query.merge(api_token: Config.fetch("api_token")),
         body: parse_body(body)
       }
     end
@@ -102,6 +135,11 @@ module Pipekit
     def resource_found?(response)
       !(response["data"].nil? || response["data"].empty?)
     end
+
+    def pagination_limit
+      Config.fetch("pagination_limit", DEFAULT_PAGINATION_LIMIT)
+    end
+
   end
 
   class ResourceNotFoundError < StandardError

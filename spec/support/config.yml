@@ -1,6 +1,6 @@
 api_token:
 test: <%= 1 + 1 %>
-request_all_results: true
+request_all_pages: true
 fields:
   person:
     middle_name: 123abc

@@ -35,28 +35,40 @@ module Pipekit
         expect(response[age_label]).to eq(23)
       end
 
-      # If you create a set of values for a field for Pipedrive to populate into
-      # a dropdown menu, such as for Interview Result we might have in our
-      # dropdown:
-      #
-      # ["Amazing", "Good", "OK"]
-      #
-      # When returning the value for Interview Result, Pipedrive helpfully just
-      # returns their own number for this so "Amazing" might be something like
-      # "66"
       context "when Pipedrive returns for a field's value a meaningless internal ID" do
 
-        it "converts Pipedrive" do
-          interview_qualities = {
-            "66" => "Amazing"
+        it "converts the ID into a meaningful label if this has been configured" do
+          interview_result = "Amazing"
+          pipedrive_id_for_result = 66
+
+          allow(Config).to receive(:field_value)
+            .with("person", :interview_quality, pipedrive_id_for_result)
+            .and_return(interview_result)
+
+          response = described_class.new("person", "interview_quality" => pipedrive_id_for_result)
+
+          expect(response[:interview_quality]).to eq(interview_result)
+
+        end
+
+        it "can fetch a custom field value from Pipedrive when specifically asked to" do
+          cohort_id = 123
+          cohort_field = {
+            "options" => [
+              { "id" => cohort_id, "label" => "August 2016" },
+              { "id" => "other id", "label" => "Not this 2016" }
+            ]
           }
 
-          allow(Config).to receive(:field_value).with("person", :interview_quality, 66).and_return("Amazing")
+          repository = instance_double("Pipedrive::DealField")
+          allow(DealField).to receive(:new).and_return(repository)
+          allow(repository).to receive(:find_by).with(name: "Cohort").and_return(cohort_field)
 
-          response = described_class.new("person", "interview_quality" => 66)
+          response = described_class.new("deal", "Cohort" => cohort_id)
 
-          expect(response[:interview_quality]).to eq("Amazing")
+          result = response.fetch(:Cohort, find_value_on_pipedrive: true)
 
+          expect(result).to eq("August 2016")
         end
       end
     end

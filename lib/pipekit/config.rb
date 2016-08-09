@@ -5,7 +5,16 @@ module Pipekit
       attr_writer :file_path
 
       def field(resource, key)
-        custom_fields.fetch(resource, {}).fetch(key.to_s, key.to_s)
+        custom_fields
+          .fetch(resource, {})
+          .fetch(key.to_s, key.to_s)
+      end
+
+      def field_value(resource, key, value)
+        fetch("field_values", {})
+          .fetch(resource, {})
+          .fetch(key.to_s, {})
+          .fetch(value, value)
       end
 
       def custom_fields

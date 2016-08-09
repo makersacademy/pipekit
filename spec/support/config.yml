@@ -6,3 +6,9 @@ fields:
     middle_name: 123abc
   deal:
     age: 987cba
+field_values:
+  person:
+    interview_quality:
+      66: Amazing
+      65: Good
+

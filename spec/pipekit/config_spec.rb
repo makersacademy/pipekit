@@ -37,5 +37,18 @@ module Pipekit
         expect(result).to eq("last_name")
       end
     end
+
+    describe "fetching custom field values from the config" do
+      it "converts custom field values from their Pipedrive ID into their meaningful name" do
+        custom_values = described_class.fetch("field_values")["person"]["interview_quality"]
+        result = described_class.field_value("person", :interview_quality, custom_values.keys.first)
+        expect(result).to eq(custom_values.values.first)
+      end
+
+      it "keeps values that do not have a custom field the same" do
+        result = described_class.field_value("person", "interview_quality", "value_not_there")
+        expect(result).to eq("value_not_there")
+      end
+    end
   end
 end

@@ -6,8 +6,8 @@ module Pipekit
     end
 
     def [](key)
-      key = Config.field(resource, key)
-      data[key.to_s]
+      converted_key = Config.field(resource, key)
+      Config.field_value(resource, key, data[converted_key])
     end
 
     private

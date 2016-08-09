@@ -36,7 +36,7 @@ module Pipekit
       end
 
       def raise_config_error
-        raise NotSetError, "You need to create a yaml file with your Pipedrive config and set the path to the file using `Pipedrive.config_file_path = 'path/to/file.yml'`"
+        raise NotSetError, "You need to create a yaml file with your Pipedrive config and set the path to the file using `Pipekit.config_file_path = 'path/to/file.yml'`"
       end
 
       def load_config

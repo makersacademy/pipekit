@@ -1,4 +1,4 @@
-RSpec.shared_examples "a repository" do |skip_tests_for_where|
+RSpec.shared_examples "a repository" do
 
   subject(:repository) { described_class.new(request) }
 
@@ -11,48 +11,45 @@ RSpec.shared_examples "a repository" do |skip_tests_for_where|
     end
   end
 
-  unless skip_tests_for_where
-    describe "#where" do
-      it "returns records matching given field" do
-        search_data = {field: "fake_field", value: "fake value"}
-        response = {id: 123, name: "Test"}
-        field_id = "field-id-123"
+  describe "#where" do
+    it "returns records matching given field" do
+      search_data = {field: "fake_field", value: "fake value"}
+      response = {id: 123, name: "Test"}
+      field_id = "field-id-123"
 
-        allow(request).to receive(:search_by_field).with(search_data).and_return([{"id" => field_id}])
-        allow(request).to receive(:get).with(field_id).and_return(response)
+      allow(request).to receive(:search_by_field).with(search_data).and_return([{"id" => field_id}])
+      allow(request).to receive(:get).with(field_id).and_return(response)
 
-        expect(repository.where(fake_field: "fake value")).to eq([response])
-      end
+      expect(repository.where(fake_field: "fake value")).to eq([response])
+    end
 
-      it "searches by id" do
-        id = 123
+    it "searches by id" do
+      id = 123
 
-        allow(request).to receive(:get).with(id).and_return(:response)
+      allow(request).to receive(:get).with(id).and_return(:response)
 
-        expect(repository.where(id: id)).to eq([:response])
-      end
+      expect(repository.where(id: id)).to eq([:response])
+    end
 
-      it "returns an empty array when request was unsuccessful" do
-        id = 123
+    it "returns an empty array when request was unsuccessful" do
+      id = 123
 
-        allow(request).to receive(:get).and_raise(Pipekit::ResourceNotFoundError.new(:response))
+      allow(request).to receive(:get).and_raise(Pipekit::ResourceNotFoundError.new(:response))
 
-        expect(repository.where(id: id)).to eq([])
-      end
+      expect(repository.where(id: id)).to eq([])
+    end
 
-      it "searches by id" do
-        id = 123
+    it "searches by id" do
+      id = 123
 
-        allow(request).to receive(:get).with(id).and_return(:response)
+      allow(request).to receive(:get).with(id).and_return(:response)
 
-        expect(repository.where(id: id)).to eq([:response])
-      end
+      expect(repository.where(id: id)).to eq([:response])
     end
 
     describe "find_by" do
       it "returns the first record matching given field" do
         data = {id: 123}
-
         allow(request).to receive(:get).with(data[:id]).and_return(:response)
 
         expect(repository.find_by(id: 123)).to eq(:response)
@@ -60,8 +57,6 @@ RSpec.shared_examples "a repository" do |skip_tests_for_where|
 
       it "raises an error when resource not found" do
         resource_error = Pipekit::ResourceNotFoundError.new(:response)
-        data = {id: 123}
-
         allow(request).to receive(:get).and_raise(resource_error)
 
         expect{repository.find_by(id: 123)}.to raise_error(resource_error)

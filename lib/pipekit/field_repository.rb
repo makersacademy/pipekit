@@ -2,13 +2,21 @@ module Pipekit
   module FieldRepository
       def get_by_key(key)
         key = Config.field(parent_resource, key)
-        result = request.get.select { |element| element["key"] == key }
+        search_fields("key", key)
+      end
 
-        raise ResourceNotFoundError.new("#{parent_resource} field: #{key}") if result.empty?
-        result
+      def get_by_name(name)
+        search_fields("name", name)
       end
 
       private
+
+      def search_fields(field_element, value)
+        result = request.get.select { |element| element[field_element] == value }
+
+        raise ResourceNotFoundError.new("#{parent_resource} field searching by element #{field_element}: #{value}") if result.empty?
+        result
+      end
 
       def parent_resource
         resource.chomp("Field")

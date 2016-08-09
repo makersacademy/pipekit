@@ -22,4 +22,14 @@ RSpec.shared_examples "a field repository" do |parent_resource|
         expect{ repository.get_by_key("non_existent") }.to raise_error(Pipekit::ResourceNotFoundError)
       end
     end
+
+    describe "finding by name" do
+
+      it "finds field details by name when it exists" do
+        response = [{"name" => "no"},{"name" => "fieldname"}]
+        allow(request).to receive(:get).and_return(response)
+
+        expect(repository.get_by_name("fieldname")).to eq([response.last])
+      end
+    end
 end

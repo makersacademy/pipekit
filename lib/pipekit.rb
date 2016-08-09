@@ -8,6 +8,7 @@ require "pipekit/repository"
 require "pipekit/person"
 require "pipekit/deal"
 require "pipekit/person_field"
+require "pipekit/deal_field"
 require "pipekit/note"
 
 module Pipekit

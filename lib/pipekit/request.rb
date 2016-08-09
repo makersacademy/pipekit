@@ -3,12 +3,12 @@ require "httparty"
 # Add a parameter of @resource
 # then a result object can be returned in result from
 # this can then normalize the fields on the fly if they are configured
-
 module Pipekit
   class Request
     include HTTParty
 
     PIPEDRIVE_URL = "https://api.pipedrive.com/v1"
+    DEFAULT_PAGINATION_LIMIT = 500
 
     base_uri PIPEDRIVE_URL
     format :json
@@ -32,7 +32,8 @@ module Pipekit
     #   search_by_field(field: :cohort, value: 119)
     #   search_by_field(field: :github_username, value: "octocat")
     #
-    # Returns an array of Hashes or nil.
+    # Returns an array of Response objects or throws a ResourceNotFoundError if
+    # it couldn't find anything.
     def search_by_field(field:, value:)
       query = {field_type: "#{resource}Field",
                field_key: Config.field(resource, field),
@@ -40,41 +41,57 @@ module Pipekit
                term: value
       }
 
-      result_from self.class.get("/searchResults/field", options(query: query))
+      response_from self.class.get("/searchResults/field", options(query: query))
     end
 
-    def get(suffix = nil, query = {})
-      result_from self.class.get(uri(suffix), options(query: query))
+    # Public: Pipedrive GET API call - does a GET request to the Pipedrive API
+    # based on the resource passed in the initialiser
+    #
+    # id - If the resource being searched for has an id
+    # query - An optional query string
+    # start - The offset with which to start the query
+    #
+    # As long as "request_all_pages" is not set to false in the config this will
+    # recursively call `#get` until all the pages of the request have been
+    # fetched from pipedrive
+    # Pipedrive until everything available has been received
+    def get(id = nil, query = {})
+      _get(id, query, get_request(id, query))
     end
 
     def put(id, body)
-      result_from self.class.put(uri(id), options(body: body))
+      response_from self.class.put(uri(id), options(body: body))
     end
 
     def post(body)
-      result_from self.class.post(uri, options(body: body))
+      response_from self.class.post(uri, options(body: body))
     end
 
     private
 
     attr_reader :resource
 
+    def _get(id, query, result)
+      return result.response(resource) unless result.fetch_next_request?
+      _get(id, query, result + get_request(id, query, result.next_start))
+    end
+
+    def get_request(id, query, start = 0)
+      response = self.class.get(uri(id), options(query: {limit: pagination_limit, start: start}.merge(query)))
+      Result.new(response)
+    end
+
+    def response_from(response_data)
+      Result.response(resource, response_data)
+    end
+
     def uri(id = nil)
       "/#{resource}s/#{id}".chomp("/")
     end
 
-    def result_from(response)
-      raise UnsuccessfulRequestError.new(response) unless response["success"]
-      raise ResourceNotFoundError.new(response) unless resource_found?(response)
-      data = response["data"]
-
-      return Response.new(resource, data) unless data.is_a? Array
-      data.map { |details| Response.new(resource, details) }
-    end
-
     def options(query: {}, body: {})
       {
-        query: {api_token: Config.fetch("api_token") }.merge(query),
+        query: query.merge(api_token: Config.fetch("api_token")),
         body: parse_body(body)
       }
     end
@@ -99,28 +116,9 @@ module Pipekit
       end
     end
 
-    def resource_found?(response)
-      !(response["data"].nil? || response["data"].empty?)
-    end
-  end
-
-  class ResourceNotFoundError < StandardError
-    def initialize(response)
-      @response = response
+    def pagination_limit
+      Config.fetch("pagination_limit", DEFAULT_PAGINATION_LIMIT)
     end
 
-    def message
-      "Resource not found: #{@response}"
-    end
-  end
-
-  class UnsuccessfulRequestError < StandardError
-    def initialize(response)
-      @response = response
-    end
-
-    def message
-      "Request not successful: #{@response}"
-    end
   end
 end

@@ -11,7 +11,7 @@ module Pipekit
     end
 
     def create_or_update(fields)
-      person = get_by_email(fields[:email])
+      person = find_by(email: fields[:email])
       update(person["id"], fields)
     rescue ResourceNotFoundError
       create(fields)

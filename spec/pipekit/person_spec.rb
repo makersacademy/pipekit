@@ -23,13 +23,12 @@ module Pipekit
 
       it "updates a person on Pipedrive when they already exist" do
         id = 123
-
-        allow(request).to receive(:get).and_return({"id" => id})
-
         fields = {
           email: "test@example.com",
           name: "Testy McTest"
         }
+
+        allow(request).to receive(:get).with("find", term: fields[:email], search_by_email: 1).and_return([{"id" => id}])
 
         repository.create_or_update(fields)
         expect(request).to have_received(:put).with(id, fields)

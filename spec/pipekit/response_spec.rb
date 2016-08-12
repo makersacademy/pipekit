@@ -1,20 +1,9 @@
 module Pipekit
   RSpec.describe Response do
-    it "acts like a hash" do
-      data = {
-        "name" => "Dave"
-      }
-
-      response = described_class.new("person", data)
-
-      expect(response["name"]).to eq("Dave")
-    end
-
     describe "fetching custom fields" do
       it "converts custom field ids into their human readable name" do
-        middle_name_label = Config.field("person", "middle_name")
         params = {
-          middle_name_label => "Milhous",
+          Config.field_name("person", "middle_name") => "Milhous",
           "first_name" => "Richard"
         }
 
@@ -25,7 +14,7 @@ module Pipekit
       end
 
       it "still allows access using the original Pipedrive ID" do
-        age_label = Config.field("deal", "middle_name")
+        age_label = Config.field_name("deal", "middle_name")
         params = {
           age_label => 23,
         }
@@ -38,16 +27,11 @@ module Pipekit
       context "when Pipedrive returns for a field's value a meaningless internal ID" do
 
         it "converts the ID into a meaningful label if this has been configured" do
-          interview_result = "Amazing"
-          pipedrive_id_for_result = 66
+          pipedrive_id = 66
+          stub_field_value(:interview_quality, pipedrive_id, "Amazing")
+          response = described_class.new("person", "interview_quality" => pipedrive_id)
 
-          allow(Config).to receive(:field_value)
-            .with("person", :interview_quality, pipedrive_id_for_result)
-            .and_return(interview_result)
-
-          response = described_class.new("person", "interview_quality" => pipedrive_id_for_result)
-
-          expect(response[:interview_quality]).to eq(interview_result)
+          expect(response[:interview_quality]).to eq("Amazing")
 
         end
 
@@ -71,6 +55,37 @@ module Pipekit
           expect(result).to eq("August 2016")
         end
       end
+
+    end
+
+    it "acts like a hash" do
+      data = {
+        "name" => "Dave"
+      }
+
+      response = described_class.new("person", data)
+      expect(response["name"]).to eq("Dave")
+    end
+
+
+    it "can fetch the data as a hash, converting custom keys and values from the config" do
+      # ID fetched from test config in spec/support/config.yml
+      interview_quality_id = 66
+      data = {
+        "name" => "Simone",
+        Config.field_name("person", "middle_name") => "Gob",
+        "interview_quality" => interview_quality_id
+      }
+
+      response = described_class.new("person", data)
+
+      expect(response.to_hash).to eq(name: "Simone", middle_name: "Gob", interview_quality: "Amazing")
+    end
+
+    def stub_field_value(field, pipedrive_id, label)
+      allow(Config).to receive(:field_value)
+        .with("person", field, pipedrive_id)
+        .and_return(label)
     end
   end
 end

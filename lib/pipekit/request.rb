@@ -1,8 +1,5 @@
 require "httparty"
 
-# Add a parameter of @resource
-# then a result object can be returned in result from
-# this can then normalize the fields on the fly if they are configured
 module Pipekit
   class Request
     include HTTParty
@@ -36,7 +33,7 @@ module Pipekit
     # it couldn't find anything.
     def search_by_field(field:, value:)
       query = {field_type: "#{resource}Field",
-               field_key: Config.field(resource, field),
+               field_key: Config.field_name(resource, field),
                return_item_ids: true,
                term: value
       }
@@ -59,12 +56,12 @@ module Pipekit
       _get(id, query, get_request(id, query))
     end
 
-    def put(id, body)
-      response_from self.class.put(uri(id), options(body: body))
+    def put(id, data)
+      response_from self.class.put(uri(id), options(body: data))
     end
 
-    def post(body)
-      response_from self.class.post(uri, options(body: body))
+    def post(data)
+      response_from self.class.post(uri, options(body: data))
     end
 
     private
@@ -111,7 +108,7 @@ module Pipekit
     # meaning you don't have to worry about the custom IDs
     def parse_body(body)
       body.reduce({}) do |result, (field, value)|
-        field = Config.field(resource, field)
+        field = Config.field_name(resource, field)
         result.tap { |result| result[field] = value }
       end
     end

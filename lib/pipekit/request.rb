@@ -109,6 +109,7 @@ module Pipekit
     def parse_body(body)
       body.reduce({}) do |result, (field, value)|
         field = Config.field_name(resource, field)
+        value = Config.field_value_id(resource, field, value)
         result.tap { |result| result[field] = value }
       end
     end

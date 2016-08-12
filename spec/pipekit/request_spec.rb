@@ -54,11 +54,12 @@ module Pipekit
 
     describe "#put" do
       it "makes a put request to Pipedrive with the correct options" do
-        fields = {"middle_name" => "Dave"}
+        fields = {"middle_name" => "Dave", "interview_quality" => "Amazing"}
         custom_field = Config.field_name("person", "middle_name")
+        interview_quality_id = Config.field_value_id("person", "interview_quality", "Amazing")
         id = "123"
 
-        stub = stub_put("persons/123", "#{custom_field}=Dave")
+        stub = stub_put("persons/123", "#{custom_field}=Dave&interview_quality=#{interview_quality_id}")
 
         request.put(id, fields)
 

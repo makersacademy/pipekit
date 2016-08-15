@@ -1,7 +1,7 @@
 module Pipekit
   module FieldRepository
       def get_by_key(key)
-        key = Config.field(parent_resource, key)
+        key = Config.field_name(parent_resource, key)
         search_fields("key", key)
       end
 

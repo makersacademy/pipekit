@@ -9,6 +9,16 @@ module Pipekit
       fetch(key)
     end
 
+    def to_h
+      data.inject({}) do |result, (field, value)|
+        field_name = Config.field_name(resource, field)
+        result[field_name.to_sym] = Config.field_value(resource, field, value)
+        result
+      end
+    end
+
+    alias_method :to_hash, :to_h
+
     # This is more complicated than it first seems as Pipedrive returns any
     # custom field you might create (such as a new cohort in the Cohort field)
     # as a meaningless Pipedrive ID so it returns something semantically
@@ -30,7 +40,7 @@ module Pipekit
     # Normally you can just use the square brackets alias to fetch responses as
     # though this was a hash:
     #
-    #    response[:name] # returns: "Dave"
+    #    response[:resource] # returns: "Dave"
     #
     # However if you find when doing this Pipedrive returns its meaningless ID
     #
@@ -42,25 +52,25 @@ module Pipekit
     # 2016"
     #
     def fetch(key, default = nil, find_value_on_pipedrive: false)
-      result = fetch_result(key, default)
-      return value_from_pipedrive(key.to_s, result) if find_value_on_pipedrive
-      convert(key, result)
+      value = fetch_value(key, default)
+      return value_from_pipedrive(key.to_s, value) if find_value_on_pipedrive
+      convert(key, value)
     end
 
     private
 
     attr_reader :data, :resource
 
-    def fetch_result(key, default)
-      converted_key = Config.field(resource, key)
+    def fetch_value(key, default)
+      converted_key = Config.field_name(resource, key)
       data.fetch(converted_key, default)
     end
 
-    def value_from_pipedrive(name, result)
+    def value_from_pipedrive(key, value)
       field_repository
-        .find_by(name: name)
+        .find_by(name: key)
         .fetch("options")
-        .find { |options| options["id"] == result }
+        .find { |options| options["id"] == value }
         .fetch("label")
     end
 
@@ -68,8 +78,8 @@ module Pipekit
       Object.const_get("Pipekit::#{resource.capitalize}Field").new
     end
 
-    def convert(key, result)
-      Config.field_value(resource, key, result)
+    def convert(key, value)
+      Config.field_value(resource, key, value)
     end
   end
 end

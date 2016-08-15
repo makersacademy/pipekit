@@ -52,5 +52,10 @@ module Pipekit
         expect(request).to have_received(:get).with("find", term: name)
       end
     end
+
+    it "finds all deals" do
+      repository.find_deals(123)
+      expect(request).to have_received(:get).with("123/deals")
+    end
   end
 end

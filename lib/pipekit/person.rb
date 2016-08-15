@@ -16,5 +16,9 @@ module Pipekit
     rescue ResourceNotFoundError
       create(fields)
     end
+
+    def find_deals(id)
+      request.get("#{id}/deals")
+    end
   end
 end

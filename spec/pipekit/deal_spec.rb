@@ -4,11 +4,29 @@ RSpec.describe Pipekit::Deal do
   it_behaves_like "a repository"
 
   it "finds values by person id" do
-    request = instance_spy("Pipekit::Request")
+    person = instance_spy("Pipekit::Person")
     repository = described_class.new
 
-    repository.get_by_person_id(123, request)
+    repository.get_by_person_id(123, person_repo: person)
 
-    expect(request).to have_received(:get).with("123/deals")
+    expect(person).to have_received(:find_deals).with(123)
+  end
+
+  it "updates a deal based on a person's email supplied" do
+    person = instance_spy("Pipekit::Person")
+    request = instance_spy("Pipekit::Request")
+
+    params = { title: "Deal title" }
+    email = "test@example.com"
+    person_id = 123
+    deal_id = 456
+
+    allow(person).to receive(:find_by).with(email: email).and_return(id: person_id)
+    allow(person).to receive(:find_deals).with(person_id).and_return([{id: deal_id}])
+
+    repository = described_class.new(request)
+    repository.update_by_person(email, params, person_repo: person)
+
+    expect(request).to have_received(:put).with(deal_id, params)
   end
 end

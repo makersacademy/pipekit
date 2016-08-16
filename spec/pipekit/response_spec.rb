@@ -14,7 +14,7 @@ module Pipekit
       end
 
       it "still allows access using the original Pipedrive ID" do
-        age_label = Config.field_name("deal", "middle_name")
+        age_label = Config.field_id("deal", "middle_name")
         params = {
           age_label => 23,
         }
@@ -93,13 +93,26 @@ module Pipekit
       interview_quality_id = 66
       data = {
         "name" => "Simone",
-        Config.field_name("person", "middle_name") => "Gob",
+        Config.field_id("person", "middle_name") => "Gob",
         "interview_quality" => interview_quality_id
       }
 
       response = described_class.new("person", data)
 
       expect(response.to_hash).to eq(name: "Simone", middle_name: "Gob", interview_quality: "Amazing")
+    end
+
+    it "knows if it has a key for a given value" do
+      data = {
+        "name" => "Simone",
+        Config.field_id("person", "middle_name") => "Gob"
+      }
+
+      response = described_class.new("person", data)
+
+      expect(response).to have_key(:name)
+      expect(response).to have_key("middle_name")
+      expect(response).not_to have_key(:blah)
     end
 
     def stub_field_value(field, pipedrive_id, label)

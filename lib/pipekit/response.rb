@@ -66,8 +66,13 @@ module Pipekit
       }.merge(opts)
 
       value = fetch_value(key, default)
+
       return value_from_pipedrive(key.to_s, value) if opts[:find_value_on_pipedrive]
-      convert(key, value, opts)
+      convert_value(key, value, opts)
+    end
+
+    def has_key?(key)
+      data.has_key? convert_key(key)
     end
 
     private
@@ -75,8 +80,7 @@ module Pipekit
     attr_reader :data, :resource
 
     def fetch_value(key, default)
-      converted_key = Config.field_id(resource, key)
-      data.fetch(converted_key, default)
+      data.fetch(convert_key(key), default)
     end
 
     def value_from_pipedrive(key, value)
@@ -91,7 +95,11 @@ module Pipekit
       Object.const_get("Pipekit::#{resource.capitalize}Field").new
     end
 
-    def convert(key, value, opts)
+    def convert_key(key)
+      Config.field_id(resource, key)
+    end
+
+    def convert_value(key, value, opts)
       value = choose_first(value) if opts[:choose_first_value]
       Config.field_value(resource, key, value)
     end

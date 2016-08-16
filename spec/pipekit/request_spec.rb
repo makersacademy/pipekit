@@ -7,6 +7,9 @@ module Pipekit
 
     subject(:request) { described_class.new("person") }
 
+    # Taken from /spec/support/config.yml
+    let(:middle_name_field_id) { "123abc" }
+
     describe "#get" do
       it "makes a get request to Pipedrive with correct options" do
         result = {"name" => "Spike"}
@@ -37,10 +40,9 @@ module Pipekit
 
     describe "#search_by_field" do
       it "makes a get request to Pipedrive /searchResults with a field key and value" do
-        field_key = Config.field_name("person", "middle_name")
         field_type = "personField"
         term = "princess"
-        url = "searchResults/field?api_token=&field_key=#{field_key}&field_type=#{field_type}&return_item_ids=true&term=#{term}"
+        url = "searchResults/field?api_token=&field_key=#{middle_name_field_id}&field_type=#{field_type}&return_item_ids=true&term=#{term}"
         response = { "name" => "middle name" }
 
         stub_request(:get, "#{Request::PIPEDRIVE_URL}/#{url}")
@@ -55,11 +57,10 @@ module Pipekit
     describe "#put" do
       it "makes a put request to Pipedrive with the correct options" do
         fields = {"middle_name" => "Dave", "interview_quality" => "Amazing"}
-        custom_field = Config.field_name("person", "middle_name")
         interview_quality_id = Config.field_value_id("person", "interview_quality", "Amazing")
         id = "123"
 
-        stub = stub_put("persons/123", "#{custom_field}=Dave&interview_quality=#{interview_quality_id}")
+        stub = stub_put("persons/123", "#{middle_name_field_id}=Dave&interview_quality=#{interview_quality_id}")
 
         request.put(id, fields)
 
@@ -70,9 +71,8 @@ module Pipekit
     describe "#post" do
       it "makes a post request to Pipedrive with the correct options" do
         fields = {"name" => "Bob", "middle_name" => "Milhous"}
-        custom_field = Config.field_name("person", "middle_name")
 
-        stub = stub_post("persons", "name=Bob&#{custom_field}=Milhous")
+        stub = stub_post("persons", "name=Bob&#{middle_name_field_id}=Milhous")
 
         request.post(fields)
 
@@ -83,9 +83,7 @@ module Pipekit
     describe "#post" do
       it "makes a post request to Pipedrive with the correct options" do
         fields = {"name" => "Bob", "middle_name" => "Milhous"}
-        custom_field = Config.field_name("person", "middle_name")
-
-        stub = stub_post("persons", "name=Bob&#{custom_field}=Milhous")
+        stub = stub_post("persons", "name=Bob&#{middle_name_field_id}=Milhous")
 
         request.post(fields)
 

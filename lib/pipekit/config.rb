@@ -69,6 +69,17 @@ module Pipekit
         config.fetch(key.to_s, default)
       end
 
+      def custom_fields(resource)
+        fetch("fields", {})
+          .fetch(resource.to_s, {})
+      end
+
+      def custom_field_values(resource, field)
+        fetch("field_values", {})
+          .fetch(resource.to_s, {})
+          .fetch(field.to_s, {})
+      end
+
       def file_path
         @file_path || raise_config_error
       end
@@ -87,18 +98,6 @@ module Pipekit
         yaml = ERB.new(File.read(file_path)).result
         YAML.load(yaml)
       end
-
-      def custom_fields(resource)
-        fetch("fields", {})
-          .fetch(resource.to_s, {})
-      end
-
-      def custom_field_values(resource, field)
-        fetch("field_values", {})
-          .fetch(resource.to_s, {})
-          .fetch(field.to_s, {})
-      end
-
     end
 
     NotSetError = Class.new(Exception)

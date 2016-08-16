@@ -3,7 +3,7 @@ module Pipekit
     describe "fetching custom fields" do
       it "converts custom field ids into their human readable name" do
         params = {
-          Config.field_name("person", "middle_name") => "Milhous",
+          Config.field_id("person", "middle_name") => "Milhous",
           "first_name" => "Richard"
         }
 
@@ -50,12 +50,32 @@ module Pipekit
 
           response = described_class.new("deal", "Cohort" => cohort_id)
 
-          result = response.fetch(:Cohort, find_value_on_pipedrive: true)
+          result = response.fetch(:Cohort, nil, find_value_on_pipedrive: true)
 
           expect(result).to eq("August 2016")
         end
       end
+    end
 
+    describe "fetching phone and email" do
+      it "fetches the first value for results with multiple values" do
+        email = "test@test.com"
+        phone = "+447854676890"
+        data = {
+          "phone" => [{"label"=>"", "value"=> phone, "primary"=>true}],
+          "email" => [{"label"=>"", "value"=> email, "primary"=>true}]
+        }
+
+        response = described_class.new("person", data)
+
+        expect(response[:email]).to eq(email)
+        expect(response[:phone]).to eq(phone)
+      end
+
+      it "does not fetch the result if an option is passed in to not choose first" do
+        response = described_class.new("person", "email" => [:result])
+        expect(response.fetch(:email, nil, choose_first_value: false)).to eq([:result])
+      end
     end
 
     it "acts like a hash" do

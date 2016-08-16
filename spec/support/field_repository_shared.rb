@@ -8,7 +8,7 @@ RSpec.shared_examples "a field repository" do |parent_resource|
     describe "finding by key" do
 
       it "finds field details by key when it exists" do
-        allow(config).to receive(:field_name).with(parent_resource, "age").and_return("fieldkey")
+        allow(config).to receive(:field_id).with(parent_resource, "age").and_return("fieldkey")
 
         response = [{"key" => "no"},{"key" => "fieldkey"}]
         allow(request).to receive(:get).and_return(response)

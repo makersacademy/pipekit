@@ -33,7 +33,7 @@ module Pipekit
     # it couldn't find anything.
     def search_by_field(field:, value:)
       query = {field_type: "#{resource}Field",
-               field_key: Config.field_name(resource, field),
+               field_key: Config.field_id(resource, field),
                return_item_ids: true,
                term: value
       }
@@ -108,7 +108,7 @@ module Pipekit
     # meaning you don't have to worry about the custom IDs
     def parse_body(body)
       body.reduce({}) do |result, (field, value)|
-        field = Config.field_name(resource, field)
+        field = Config.field_id(resource, field)
         value = Config.field_value_id(resource, field, value)
         result.tap { |result| result[field] = value }
       end

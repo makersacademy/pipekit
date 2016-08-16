@@ -1,5 +1,6 @@
 module Pipekit
   class Response
+
     def initialize(resource, data)
       @resource = resource
       @data = data
@@ -34,6 +35,13 @@ module Pipekit
     # a call to the Pipedrive API to look it up. This is off by default as it is
     # obviously quite slow to call an API each time you want to fetch some data
     #
+    # Options:
+    #
+    # find_value_on_pipedrive (default: false) - if set to true will look up using the Pipedrive
+    # API the actual value of field (rather than the Pipedrive ID)
+    #
+    # choose_first_value (default: true) - if Pipedrive returns an array of values this will
+    # choose the first one rather than return the array
     #
     # Examples:
     #
@@ -51,10 +59,15 @@ module Pipekit
     #    response.fetch(:cohort, find_value_on_pipedrive: true) # returns: "April
     # 2016"
     #
-    def fetch(key, default = nil, find_value_on_pipedrive: false)
+    def fetch(key, default = nil, opts = {})
+      opts = {
+        find_value_on_pipedrive: false,
+        choose_first_value: true
+      }.merge(opts)
+
       value = fetch_value(key, default)
-      return value_from_pipedrive(key.to_s, value) if find_value_on_pipedrive
-      convert(key, value)
+      return value_from_pipedrive(key.to_s, value) if opts[:find_value_on_pipedrive]
+      convert(key, value, opts)
     end
 
     private
@@ -62,14 +75,14 @@ module Pipekit
     attr_reader :data, :resource
 
     def fetch_value(key, default)
-      converted_key = Config.field_name(resource, key)
+      converted_key = Config.field_id(resource, key)
       data.fetch(converted_key, default)
     end
 
     def value_from_pipedrive(key, value)
       field_repository
         .find_by(name: key)
-        .fetch("options")
+        .fetch("options", [])
         .find { |options| options["id"] == value }
         .fetch("label")
     end
@@ -78,8 +91,14 @@ module Pipekit
       Object.const_get("Pipekit::#{resource.capitalize}Field").new
     end
 
-    def convert(key, value)
+    def convert(key, value, opts)
+      value = choose_first(value) if opts[:choose_first_value]
       Config.field_value(resource, key, value)
+    end
+
+    def choose_first(result)
+      return result unless result.is_a? Array
+      result.first["value"]
     end
   end
 end

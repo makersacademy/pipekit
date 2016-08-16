@@ -37,22 +37,28 @@ module Pipekit
 
         it "can fetch a custom field value from Pipedrive when specifically asked to" do
           cohort_id = 123
-          cohort_field = {
+          stub_deal_field_lookup(cohort_id)
+          response = described_class.new("deal", "Cohort" => cohort_id)
+
+          result = response.fetch("Cohort", nil, find_value_on_pipedrive: true)
+
+          expect(result).to eq("August 2016")
+        end
+
+        def stub_deal_field_lookup(cohort_id)
+          deal_field_data = {
             "options" => [
-              { "id" => cohort_id, "label" => "August 2016" },
-              { "id" => "other id", "label" => "Not this 2016" }
+              { "id" => "other id", "label" => "Not this 2016" },
+              { "id" => cohort_id, "label" => "August 2016" }
             ]
           }
 
           repository = instance_double("Pipedrive::DealField")
           allow(DealField).to receive(:new).and_return(repository)
-          allow(repository).to receive(:find_by).with(name: "Cohort").and_return(cohort_field)
 
-          response = described_class.new("deal", "Cohort" => cohort_id)
-
-          result = response.fetch(:Cohort, nil, find_value_on_pipedrive: true)
-
-          expect(result).to eq("August 2016")
+          allow(repository).to receive(:find_by)
+            .with(name: "Cohort")
+            .and_return(described_class.new("dealField", deal_field_data))
         end
       end
     end

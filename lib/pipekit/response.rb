@@ -86,7 +86,7 @@ module Pipekit
     def value_from_pipedrive(key, value)
       field_repository
         .find_by(name: key)
-        .fetch("options", [])
+        .fetch("options", [], choose_first_value: false)
         .find { |options| options["id"] == value }
         .fetch("label")
     end

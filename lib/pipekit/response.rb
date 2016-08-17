@@ -106,6 +106,7 @@ module Pipekit
 
     def choose_first(result)
       return result unless result.is_a? Array
+      return if result.empty?
       result.first["value"]
     end
   end

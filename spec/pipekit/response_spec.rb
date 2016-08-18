@@ -35,30 +35,42 @@ module Pipekit
 
         end
 
-        it "can fetch a custom field value from Pipedrive when specifically asked to" do
-          cohort_id = 123
-          stub_deal_field_lookup(cohort_id)
-          response = described_class.new("deal", "Cohort" => cohort_id)
+        describe "Custom field values" do
 
-          result = response.fetch("Cohort", nil, find_value_on_pipedrive: true)
+          it "can fetch a custom field value from Pipedrive when specifically asked to" do
+            cohort_id = "123"
+            stub_deal_field_lookup(cohort_id)
+            response = described_class.new("deal", "Cohort" => cohort_id)
 
-          expect(result).to eq("August 2016")
-        end
+            result = response.fetch("Cohort", nil, find_value_on_pipedrive: true)
 
-        def stub_deal_field_lookup(cohort_id)
-          deal_field_data = {
-            "options" => [
-              { "id" => "other id", "label" => "Not this 2016" },
-              { "id" => cohort_id, "label" => "August 2016" }
-            ]
-          }
+            expect(result).to eq("August 2016")
+          end
 
-          repository = instance_double("Pipedrive::DealField")
-          allow(DealField).to receive(:new).and_return(repository)
+          it "raises an error" do
+            stub_deal_field_lookup(1234)
+            response = described_class.new("deal", "Cohort" => "unkown cohort")
 
-          allow(repository).to receive(:find_by)
-            .with(name: "Cohort")
-            .and_return(described_class.new("dealField", deal_field_data))
+            expect do
+              response.fetch("Cohort", nil, find_value_on_pipedrive: true)
+            end.to raise_error(ResourceNotFoundError)
+          end
+
+          def stub_deal_field_lookup(cohort_id)
+            deal_field_data = {
+              "options" => [
+                { "id" => "other id", "label" => "Not this 2016" },
+                { "id" => cohort_id.to_i, "label" => "August 2016" }
+              ]
+            }
+
+            repository = instance_double("Pipedrive::DealField")
+            allow(DealField).to receive(:new).and_return(repository)
+
+            allow(repository).to receive(:find_by)
+              .with(name: "Cohort")
+              .and_return(described_class.new("dealField", deal_field_data))
+          end
         end
       end
     end

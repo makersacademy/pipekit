@@ -84,13 +84,14 @@ module Pipekit
     end
 
     def value_from_pipedrive(key, value)
+      return unless value && !value.empty?
+
       option = field_repository
         .find_by(name: key)
         .fetch("options", [], choose_first_value: false)
         .find { |options| options["id"] == value.to_i }
 
-      raise ResourceNotFoundError.new("Could not find field #{key}'s value #{value} on Pipedrive'") unless option
-
+      raise ResourceNotFoundError.new("Could not find field #{key}'s value '#{value}' on Pipedrive") unless option
       option.fetch("label")
     end
 

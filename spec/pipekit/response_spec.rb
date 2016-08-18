@@ -47,6 +47,12 @@ module Pipekit
             expect(result).to eq("August 2016")
           end
 
+          it "does nothing if the value is nil" do
+            response = described_class.new("deal", {"empty" => ""})
+            expect(response.fetch("Cohort", nil, find_value_on_pipedrive: true)).to be_nil
+            expect(response.fetch("empty", nil, find_value_on_pipedrive: true)).to be_nil
+          end
+
           it "raises an error" do
             stub_deal_field_lookup(1234)
             response = described_class.new("deal", "Cohort" => "unkown cohort")

@@ -6,6 +6,11 @@ module Pipekit
       @data = data
     end
 
+    def ==(other)
+      return false unless other.respond_to?(:to_h)
+      to_h == other.to_h
+    end
+
     def [](key)
       fetch(key)
     end

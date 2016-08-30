@@ -3,7 +3,7 @@ module Pipekit
 
     def initialize(resource, data)
       @resource = resource
-      @data = data
+      @data = data || {}
     end
 
     def ==(other)

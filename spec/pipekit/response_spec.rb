@@ -139,6 +139,12 @@ module Pipekit
       expect(response).not_to have_key(:blah)
     end
 
+    it "can handle gracefully having no data passed in" do
+      response = described_class.new("note", nil)
+
+      expect(response[:name]).to be_nil
+    end
+
     def stub_field_value(field, pipedrive_id, label)
       allow(Config).to receive(:field_value)
         .with("person", field, pipedrive_id)

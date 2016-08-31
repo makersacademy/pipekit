@@ -1,32 +1,43 @@
-RSpec.describe Pipekit::Deal do
-  let(:uri) { "deals" }
+module Pipekit
+  RSpec.describe Deal do
+    let(:uri) { "deals" }
 
-  it_behaves_like "a repository"
+    it_behaves_like "a repository"
 
-  it "finds values by person id" do
-    person = instance_spy("Pipekit::Person")
-    repository = described_class.new
+    describe "Finding deals" do
+      it "finds deals by person id" do
+        person = instance_spy("Pipekit::Person")
+        person_id = 1456
+        repository = described_class.new
 
-    repository.get_by_person_id(123, person_repo: person)
+        repository.get_by_person_id(person_id, person_repo: person)
 
-    expect(person).to have_received(:find_deals).with(123)
-  end
+        expect(person).to have_received(:find_deals).with(person_id)
+      end
 
-  it "updates a deal based on a person's email supplied" do
-    person = instance_spy("Pipekit::Person")
-    request = instance_spy("Pipekit::Request")
+      it "errors if no ID is supplied" do
+        repository = described_class.new
+        expect{ repository.get_by_person_id(nil) }.to raise_error(UnknownPersonError)
+      end
 
-    params = { title: "Deal title" }
-    email = "test@example.com"
-    person_id = 123
-    deal_id = 456
+    end
 
-    allow(person).to receive(:find_by).with(email: email).and_return(id: person_id)
-    allow(person).to receive(:find_deals).with(person_id).and_return([{id: deal_id}])
+    it "updates a deal based on a person's email supplied" do
+      person = instance_spy("Pipekit::Person")
+      request = instance_spy("Pipekit::Request")
 
-    repository = described_class.new(request)
-    repository.update_by_person(email, params, person_repo: person)
+      params = { title: "Deal title" }
+      email = "test@example.com"
+      person_id = 123
+      deal_id = 456
 
-    expect(request).to have_received(:put).with(deal_id, params)
+      allow(person).to receive(:find_by).with(email: email).and_return(id: person_id)
+      allow(person).to receive(:find_deals).with(person_id).and_return([{id: deal_id}])
+
+      repository = described_class.new(request)
+      repository.update_by_person(email, params, person_repo: person)
+
+      expect(request).to have_received(:put).with(deal_id, params)
+    end
   end
 end

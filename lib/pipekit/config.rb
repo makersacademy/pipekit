@@ -69,6 +69,10 @@ module Pipekit
         config.fetch(key.to_s, default)
       end
 
+      def set(key, value)
+        config[key.to_s] = value
+      end
+
       def custom_fields(resource)
         fetch("fields", {})
           .fetch(resource.to_s, {})

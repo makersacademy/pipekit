@@ -5,9 +5,10 @@ module Pipekit
     # This value is taken from the file at spec/support/config.yml
     let(:middle_name_id) { "123abc" }
     let(:interview_quality_id) { 66 }
+    let(:test_config_value) { 2 }
 
     it "can access config values from the yaml file" do
-      expect(described_class.fetch("test")).to eq(2)
+      expect(described_class.fetch("test")).to eq(test_config_value)
     end
 
     it "can provide a default value if no config value exists" do
@@ -21,6 +22,13 @@ module Pipekit
       expect{described_class.file_path}.to raise_error(Pipekit::Config::NotSetError)
 
       Pipekit.config_file_path = file_path
+    end
+
+    it "can set values to the config" do
+      described_class.set(:test, "new value")
+      expect(described_class.fetch("test")).to eq("new value")
+
+      described_class.set(:test, test_config_value)
     end
 
 

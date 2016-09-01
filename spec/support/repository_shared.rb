@@ -6,8 +6,8 @@ RSpec.shared_examples "a repository" do
 
   describe "#all" do
     it "returns all records from the repository" do
-      repository.all
-      expect(request).to have_received(:get)
+      repository.all(filter_id: 2)
+      expect(request).to have_received(:get).with("", filter_id: 2)
     end
   end
 

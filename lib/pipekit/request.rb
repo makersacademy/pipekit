@@ -12,7 +12,7 @@ module Pipekit
 
     def initialize(resource)
       @resource = resource
-      self.class.debug_output $stdout if Config.fetch("debug_requests")
+      self.class.debug_output $stdout if Config.fetch(:debug_requests)
     end
 
     # Public: Pipedrive /searchField API call.
@@ -31,14 +31,18 @@ module Pipekit
     #
     # Returns an array of Response objects or throws a ResourceNotFoundError if
     # it couldn't find anything.
+    #
+    # This also uses the "request_all_pages" config option when set to do
+    # multiple requests, getting around Pipedrive's pagination
     def search_by_field(field:, value:)
       query = {field_type: "#{resource}Field",
                field_key: Config.field_id(resource, field),
                return_item_ids: true,
-               term: value
+               term: Config.field_value_id(resource, field, value),
+               exact_match: 1
       }
 
-      response_from self.class.get("/searchResults/field", options(query: query))
+      get_request("/searchResults/field", query).response(resource)
     end
 
     # Public: Pipedrive GET API call - does a GET request to the Pipedrive API
@@ -52,8 +56,9 @@ module Pipekit
     # recursively call `#get` until all the pages of the request have been
     # fetched from pipedrive
     # Pipedrive until everything available has been received
-    def get(id = nil, query = {})
-      _get(id, query, get_request(id, query))
+    def get(id = "", query = {})
+      uri = uri(id)
+      _get(uri, query, get_request(uri, query))
     end
 
     def put(id, data)
@@ -68,13 +73,13 @@ module Pipekit
 
     attr_reader :resource
 
-    def _get(id, query, result)
+    def _get(uri, query, result)
       return result.response(resource) unless result.fetch_next_request?
-      _get(id, query, result + get_request(id, query, result.next_start))
+      _get(uri, query, result + get_request(uri, query, result.next_start))
     end
 
-    def get_request(id, query, start = 0)
-      response = self.class.get(uri(id), options(query: {limit: pagination_limit, start: start}.merge(query)))
+    def get_request(uri, query, start = 0)
+      response = self.class.get(uri, options(query: {limit: pagination_limit, start: start}.merge(query)))
       Result.new(response)
     end
 
@@ -82,13 +87,13 @@ module Pipekit
       Result.response(resource, response_data)
     end
 
-    def uri(id = nil)
+    def uri(id = "")
       "/#{resource}s/#{id}".chomp("/")
     end
 
     def options(query: {}, body: {})
       {
-        query: query.merge(api_token: Config.fetch("api_token")),
+        query: query.merge(api_token: Config.fetch(:api_token)),
         body: parse_body(body)
       }
     end
@@ -115,7 +120,7 @@ module Pipekit
     end
 
     def pagination_limit
-      Config.fetch("pagination_limit", DEFAULT_PAGINATION_LIMIT)
+      Config.fetch(:pagination_limit, DEFAULT_PAGINATION_LIMIT)
     end
 
   end

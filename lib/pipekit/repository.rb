@@ -5,8 +5,8 @@ module Pipekit
       @request = request || Request.new(resource)
     end
 
-    def all
-      get
+    def all(query = {})
+      request.get("", query)
     end
 
     # Public: Get all records from Pipedrive by **one** of the record's fields.

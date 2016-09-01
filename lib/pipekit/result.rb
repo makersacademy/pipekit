@@ -18,7 +18,7 @@ module Pipekit
     end
 
     def fetch_next_request?
-      Config.fetch("request_all_pages", true) && pagination_data["more_items_in_collection"]
+      Config.fetch(:request_all_pages, true) && pagination_data["more_items_in_collection"]
     end
 
     def next_start

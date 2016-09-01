@@ -66,7 +66,7 @@ module Pipekit
     end
 
     def message
-      "Resource not found: #{@response}"
+      "Resource not found, response was: #{@response}"
     end
   end
 

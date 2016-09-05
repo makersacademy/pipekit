@@ -115,13 +115,13 @@ module Pipekit
       it "raises an error when response is unsuccessful" do
         stub_get("persons", "name=Bob", success: false)
 
-        expect{request.get}.to raise_error(UnsuccessfulRequestError) 
+        expect{request.get}.to raise_error(UnsuccessfulRequestError)
       end
 
       it "raises an error when resource is not found" do
         stub_get("persons", "", success: true)
 
-        expect{request.get}.to raise_error(ResourceNotFoundError) 
+        expect{request.get}.to raise_error(ResourceNotFoundError)
       end
     end
 

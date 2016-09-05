@@ -10,9 +10,13 @@ module Pipekit
       request.get("find", term: name)
     end
 
-    def create_or_update(fields)
-      person = find_by(email: fields[:email])
+    def update_by_email(email, fields)
+      person = find_by(email: email)
       update(person["id"], fields)
+    end
+
+    def create_or_update(fields)
+      update_by_email(fields[:email], fields)
     rescue ResourceNotFoundError
       create(fields)
     end

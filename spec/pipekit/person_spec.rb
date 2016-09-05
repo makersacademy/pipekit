@@ -17,6 +17,7 @@ module Pipekit
           name: "Testy McTest"
         }
 
+
         repository.create_or_update(fields)
         expect(request).to have_received(:post).with(fields)
       end
@@ -28,7 +29,7 @@ module Pipekit
           name: "Testy McTest"
         }
 
-        allow(request).to receive(:get).with("find", term: fields[:email], search_by_email: 1).and_return([{"id" => id}])
+        stub_find_by_email(fields[:email], id)
 
         repository.create_or_update(fields)
         expect(request).to have_received(:put).with(id, fields)
@@ -53,9 +54,26 @@ module Pipekit
       end
     end
 
+    it "updates by a person's email" do
+      email = "test@blah.com"
+      id = 123
+      fields = {}
+
+      stub_find_by_email(email, id)
+
+      repository.update_by_email(email, fields)
+
+      expect(request).to have_received(:put).with(id, fields)
+    end
+
     it "finds all deals" do
       repository.find_deals(123)
       expect(request).to have_received(:get).with("123/deals")
+    end
+
+    def stub_find_by_email(email, id)
+      allow(request).to receive(:get).with("find", term: email, search_by_email: 1).and_return([{"id" => id}])
+
     end
   end
 end

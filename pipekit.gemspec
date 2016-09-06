@@ -6,8 +6,8 @@ require 'pipekit/version'
 Gem::Specification.new do |spec|
   spec.name          = "pipekit"
   spec.version       = Pipekit::VERSION
-  spec.authors       = ["jafrog", "pitchinvasion", "spike01"]
-  spec.email         = ["irina@makersacademy.com", "leo@makersacademy.com", "spike@makersacademy.com"]
+  spec.authors       = ["jafrog", "pitchinvasion", "spike01", "danldb"]
+  spec.email         = ["irina@makersacademy.com", "leo@makersacademy.com", "spike@makersacademy.com", "dan@makersacademy.com"]
 
   spec.summary       = %q{Pipedrive API client for Ruby.}
   spec.description   = %q{Pipedrive API client for Ruby.}

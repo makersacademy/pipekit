@@ -1,9 +1,10 @@
 module Pipekit
   class Response
 
-    def initialize(resource, data)
+    def initialize(resource, data, field_repository: nil)
       @resource = resource
       @data = data || {}
+      @field_repository = field_repository
     end
 
     def ==(other)
@@ -84,23 +85,20 @@ module Pipekit
 
     attr_reader :data, :resource
 
+    def field_repository
+      @field_repository ||= build_field_repository
+    end
+
     def fetch_value(key, default)
       data.fetch(convert_key(key), default)
     end
 
     def value_from_pipedrive(key, value)
       return unless value && !value.empty?
-
-      option = field_repository
-        .find_by(name: key)
-        .fetch("options", [], choose_first_value: false)
-        .find { |options| options["id"] == value.to_i }
-
-      raise ResourceNotFoundError.new("Could not find field #{key}'s value '#{value}' on Pipedrive") unless option
-      option.fetch("label")
+      field_repository.find_label(field: key, id: value)
     end
 
-    def field_repository
+    def build_field_repository
       Object.const_get("Pipekit::#{resource.capitalize}Field").new
     end
 

@@ -11,13 +11,13 @@ RSpec.shared_examples "a field repository" do |parent_resource|
         allow(config).to receive(:field_id).with(parent_resource, "age").and_return("fieldkey")
 
         response = [{"key" => "no"},{"key" => "fieldkey"}]
-        allow(request).to receive(:get).and_return(response)
+        stub_field_lookup(response)
 
         expect(repository.get_by_key("age")).to eq([response.last])
       end
 
       it "raises a error when it does not exist" do
-        allow(request).to receive(:get).and_return([])
+        stub_field_lookup([])
 
         expect{ repository.get_by_key("non_existent") }.to raise_error(Pipekit::ResourceNotFoundError)
       end
@@ -27,9 +27,36 @@ RSpec.shared_examples "a field repository" do |parent_resource|
 
       it "finds field details by name when it exists" do
         response = [{"name" => "no"},{"name" => "fieldname"}]
-        allow(request).to receive(:get).and_return(response)
+        stub_field_lookup(response)
 
         expect(repository.get_by_name("fieldname")).to eq([response.last])
       end
+    end
+
+    describe "finding by field value" do
+
+      let(:response) do
+        [{
+          "name" => "Cohort",
+          "options" => [
+            { "id" => "cohort_id", "label" => "August 2016" }
+          ]
+        }]
+      end
+
+      it "finds field label by id" do
+        stub_field_lookup(response)
+        expect(repository.find_label(field: "Cohort", id: "cohort_id")).to eq "August 2016"
+      end
+
+      it "finds all the values for a field" do
+        stub_field_lookup(response)
+
+        expect(repository.find_values("Cohort")).to eq response.first["options"]
+      end
+    end
+
+    def stub_field_lookup(response)
+      allow(request).to receive(:get).and_return(response)
     end
 end

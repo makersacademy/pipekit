@@ -81,10 +81,4 @@ RSpec.shared_examples "a repository" do
       repository.update(id, fields)
     end
   end
-
-  describe ".resource" do
-    it "automatically works out the resource name based on the class name" do
-      expect(Pipekit::PersonField.resource).to eq("personField")
-    end
-  end
 end

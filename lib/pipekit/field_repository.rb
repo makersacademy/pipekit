@@ -10,15 +10,21 @@ module Pipekit
       search_fields("name", name)
     end
 
-    def find_label(field:,id:)
-      find_values(field).find({}) { |value| value["id"] == id }.fetch("label")
+    def find_label(field:, id:)
+      find_values(field)
+        .find(raise_label_not_found(field, id)) { |value| value["id"] == id.to_i }
+        .fetch("label", "")
     end
 
     def find_values(field)
-      find_by(name: field)["options"]
+      find_by(name: field).fetch("options", [], choose_first_value: false)
     end
 
     private
+
+    def raise_label_not_found(field, id)
+      -> { raise LabelNotFoundError.new(field, id) }
+    end
 
     def search_fields(field_element, value)
       result = request.get.select { |element| element[field_element] == value }
@@ -29,6 +35,19 @@ module Pipekit
 
     def parent_resource
       resource.chomp("Field")
+    end
+
+  end
+
+  class LabelNotFoundError < StandardError
+
+    def initialize(field, id)
+      @field = field
+      @id = id
+    end
+
+    def message
+      "Could not find label for id: #{@id} with field: #{@field}"
     end
   end
 end

@@ -6,8 +6,8 @@ RSpec.shared_examples "a repository" do
 
   describe "#all" do
     it "returns all records from the repository" do
-      repository.all
-      expect(request).to have_received(:get)
+      repository.all(filter_id: 2)
+      expect(request).to have_received(:get).with("", filter_id: 2)
     end
   end
 
@@ -79,12 +79,6 @@ RSpec.shared_examples "a repository" do
       fields = {foo: :bar}
       expect(request).to receive(:put).with(id, fields)
       repository.update(id, fields)
-    end
-  end
-
-  describe ".resource" do
-    it "automatically works out the resource name based on the class name" do
-      expect(Pipekit::PersonField.resource).to eq("personField")
     end
   end
 end

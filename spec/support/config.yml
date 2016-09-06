@@ -1,13 +1,16 @@
 api_token:
 test: <%= 1 + 1 %>
-request_all_pages: true
+request_all_pages: false
 fields:
   person:
     middle_name: 123abc
+    custom_field: 99912a
   deal:
     age: 987cba
 field_values:
   person:
+    custom_field:
+      99: custom_value
     interview_quality:
       66: Amazing
       65: Good

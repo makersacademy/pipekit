@@ -35,48 +35,40 @@ module Pipekit
 
         end
 
-        describe "Custom field values" do
+        it "can fetch a custom field value from Pipedrive when specifically asked to" do
+          cohort_id = "123"
+          cohort = "August 2016"
 
-          it "can fetch a custom field value from Pipedrive when specifically asked to" do
-            cohort_id = "123"
-            stub_deal_field_lookup(cohort_id)
-            response = described_class.new("deal", "Cohort" => cohort_id)
+          repository = instance_double(Pipekit::DealField)
+          allow(repository).to receive(:find_label).with(field: "Cohort", id: cohort_id).and_return(cohort)
 
-            result = response.fetch("Cohort", nil, find_value_on_pipedrive: true)
+          response = described_class.new("deal", {"Cohort" => cohort_id}, field_repository: repository)
+          result = response.fetch(:Cohort, nil, find_value_on_pipedrive: true)
 
-            expect(result).to eq("August 2016")
-          end
+          expect(result).to eq("August 2016")
+        end
 
-          it "does nothing if the value is nil" do
-            response = described_class.new("deal", {"empty" => ""})
-            expect(response.fetch("Cohort", nil, find_value_on_pipedrive: true)).to be_nil
-            expect(response.fetch("empty", nil, find_value_on_pipedrive: true)).to be_nil
-          end
+        it "does nothing if the value is nil" do
+          response = described_class.new("deal", {"empty" => ""})
+          expect(response.fetch("Cohort", nil, find_value_on_pipedrive: true)).to be_nil
+          expect(response.fetch("empty", nil, find_value_on_pipedrive: true)).to be_nil
+        end
 
-          it "raises an error" do
-            stub_deal_field_lookup(1234)
-            response = described_class.new("deal", "Cohort" => "unkown cohort")
 
-            expect do
-              response.fetch("Cohort", nil, find_value_on_pipedrive: true)
-            end.to raise_error(ResourceNotFoundError)
-          end
+        def stub_deal_field_lookup(cohort_id)
+          deal_field_data = {
+            "options" => [
+              { "id" => "other id", "label" => "Not this 2016" },
+              { "id" => cohort_id.to_i, "label" => "August 2016" }
+            ]
+          }
 
-          def stub_deal_field_lookup(cohort_id)
-            deal_field_data = {
-              "options" => [
-                { "id" => "other id", "label" => "Not this 2016" },
-                { "id" => cohort_id.to_i, "label" => "August 2016" }
-              ]
-            }
+          repository = instance_double("Pipedrive::DealField")
+          allow(DealField).to receive(:new).and_return(repository)
 
-            repository = instance_double("Pipedrive::DealField")
-            allow(DealField).to receive(:new).and_return(repository)
-
-            allow(repository).to receive(:find_by)
-              .with(name: "Cohort")
-              .and_return(described_class.new("dealField", deal_field_data))
-          end
+          allow(repository).to receive(:find_by)
+            .with(name: "Cohort")
+            .and_return(described_class.new("dealField", deal_field_data))
         end
       end
     end

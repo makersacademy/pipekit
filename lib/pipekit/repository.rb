@@ -5,8 +5,8 @@ module Pipekit
       @request = request || Request.new(resource)
     end
 
-    def all
-      get
+    def all(query = {})
+      request.get("", query)
     end
 
     # Public: Get all records from Pipedrive by **one** of the record's fields.
@@ -46,8 +46,8 @@ module Pipekit
     #
     # fields - fields for the record.
     #
-    # Examples
     #
+    # Examples
     #   create({name: "John Doe", deal_id: 123})
     #
     # Returns nothing.
@@ -66,16 +66,6 @@ module Pipekit
     # Returns nothing.
     def update(id, fields)
       request.put(id, fields)
-    end
-
-    def self.included(base)
-      base.extend(ClassMethods)
-    end
-
-    module ClassMethods
-      def resource
-        to_s.split("::").last.tap { |name| name[0] = name[0].downcase }
-      end
     end
 
     private
@@ -103,7 +93,7 @@ module Pipekit
     end
 
     def resource
-      self.class.resource
+      self.class.to_s.split("::").last.tap { |name| name[0] = name[0].downcase }
     end
   end
 end

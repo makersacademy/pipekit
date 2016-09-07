@@ -3,7 +3,6 @@ module Pipekit
 
     subject(:repository) { described_class.new(request) }
     let(:request) { instance_spy("Pipedrive::Request") }
-    let(:uri) { "persons" }
 
     it_behaves_like "a repository"
 

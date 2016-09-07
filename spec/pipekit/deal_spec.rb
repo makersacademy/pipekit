@@ -1,7 +1,5 @@
 module Pipekit
   RSpec.describe Deal do
-    let(:uri) { "deals" }
-
     it_behaves_like "a repository"
 
     describe "Finding deals" do

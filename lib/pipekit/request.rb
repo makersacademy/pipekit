@@ -42,7 +42,7 @@ module Pipekit
                exact_match: 1
       }
 
-      get_request("/searchResults/field", query).response(resource)
+      get_request("/searchResults/field", query).response
     end
 
     # Public: Pipedrive GET API call - does a GET request to the Pipedrive API
@@ -74,13 +74,13 @@ module Pipekit
     attr_reader :resource
 
     def _get(uri, query, result)
-      return result.response(resource) unless result.fetch_next_request?
+      return result.response unless result.fetch_next_request?
       _get(uri, query, result + get_request(uri, query, result.next_start))
     end
 
     def get_request(uri, query, start = 0)
       response = self.class.get(uri, options(query: {limit: pagination_limit, start: start}.merge(query)))
-      Result.new(response)
+      Result.new(resource, response)
     end
 
     def response_from(response_data)

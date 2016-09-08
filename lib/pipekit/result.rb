@@ -2,19 +2,20 @@
 module Pipekit
   class Result
 
-    def initialize(response_data)
+    def initialize(resource, response_data)
       @response_data = response_data
+      @resource = resource
       raise UnsuccessfulRequestError.new(response_data) unless success?
     end
 
-    def response(resource)
+    def response
       raise ResourceNotFoundError.new(response_data) unless resource_found?
       return Response.new(resource, response_body) unless response_body.is_a? Array
       response_body.map { |data| Response.new(resource, data) }
     end
 
     def +(other)
-      self.class.new(other.merged_response(response_body))
+      self.class.new(resource, other.merged_response(response_body))
     end
 
     def fetch_next_request?
@@ -26,7 +27,7 @@ module Pipekit
     end
 
     def self.response(resource, response_data)
-      new(response_data).response(resource)
+      new(resource, response_data).response
     end
 
     protected
@@ -39,7 +40,7 @@ module Pipekit
 
     private
 
-    attr_reader :response_data
+    attr_reader :response_data, :resource
 
     def pagination_data
       response_data

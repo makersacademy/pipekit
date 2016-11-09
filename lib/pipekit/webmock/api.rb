@@ -21,8 +21,8 @@ module Pipekit
     module API
       extend self
 
-      def stub_pipedrive_request(resource:, action:, params:)
-        StubRequest.new(resource).send("stub_#{action}_request", params)
+      def stub_pipedrive_request(resource:, action:, params:, response: nil)
+        StubRequest.new(resource).stub_request_and_response(action, params, response)
       end
 
       class StubRequest
@@ -30,6 +30,12 @@ module Pipekit
 
         def initialize(resource)
           @request = Pipekit::Request.new(resource)
+        end
+
+        def stub_request_and_response(action, params, response)
+          request = self.send("stub_#{action}_request", params)
+          request.and_return(status: 200, body: {"data" => response, "success" => true}.to_json) if response
+          request
         end
 
         private

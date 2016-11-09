@@ -18,8 +18,9 @@ RSpec.describe "Pipekit Webmock stubs" do
     stub_pipedrive_request(
       resource: :person,
       action: :create,
-      params: person_params
-    ).and_return(status: 200, body: {"data" => {"id" => 123}, "success" => true}.to_json)
+      params: person_params,
+      response: {"id" => 123}
+    )
     person_repo.create(person_params)
   end
 
@@ -27,13 +28,15 @@ RSpec.describe "Pipekit Webmock stubs" do
     stub_pipedrive_request(
       resource: :person,
       action: :search,
-      params: {middle_name: "Purr"}
-    ).and_return(status: 200, body: {"data" => [{"id" => 123}], "success" => true}.to_json)
+      params: {middle_name: "Purr"},
+      response: [{"id" => 123}]
+    )
     stub_pipedrive_request(
       resource: :person,
       action: :get,
-      params: {id: 123}
-    ).and_return(status: 200, body: {"data" => {"id" => 123}, "success" => true}.to_json)
+      params: {id: 123},
+      response: {"id" => 123}
+    )
 
     person_repo.find_by(middle_name: "Purr")
   end
@@ -42,8 +45,9 @@ RSpec.describe "Pipekit Webmock stubs" do
     stub_pipedrive_request(
       resource: :deal,
       action: :find_by_person_id,
-      params: {person_id: 123}
-    ).and_return(status: 200, body: {"data" => [{"id" => 234}], "success" => true}.to_json)
+      params: {person_id: 123},
+      response: [{"id" => 234}]
+    )
 
     deal_repo.find_by(person_id: 123)
   end
@@ -52,8 +56,9 @@ RSpec.describe "Pipekit Webmock stubs" do
     stub_pipedrive_request(
       resource: :person,
       action: :find_by_email,
-      params: {email: "octocat@github.com"}
-    ).and_return(status: 200, body: {"data" => [{"id" => 234}], "success" => true}.to_json)
+      params: {email: "octocat@github.com"},
+      response: [{"id" => 234}]
+    )
 
     person_repo.find_by(email: "octocat@github.com")
   end
@@ -62,8 +67,9 @@ RSpec.describe "Pipekit Webmock stubs" do
     stub_pipedrive_request(
       resource: :person,
       action: :find_by_name,
-      params: {name: "Octocat"}
-    ).and_return(status: 200, body: {"data" => [{"id" => 234}], "success" => true}.to_json)
+      params: {name: "Octocat"},
+      response: [{"id" => 234}]
+    )
 
     person_repo.find_by(name: "Octocat")
   end

@@ -109,6 +109,23 @@ describe "Pipekit::WebMock::API::stub_pipedrive_request" do
     remove_request_stub(stub_find_by_name)
   end
 
+  it "registers a WebMock stub with a return value in a form of Pipekit response object" do
+    stub_create = stub_pipedrive_request(
+      resource: :note,
+      action: :create,
+      params: {content: "rad", deal_id: 123},
+      response: {id: 456}
+    )
+
+    actual_request = WebMock::StubRegistry.instance.request_stubs.first
+    expected_request_pattern = "POST https://api.pipedrive.com/v1/notes?api_token=123456 with body \"content=rad&deal_id=123\""
+
+    expect(actual_request.request_pattern.to_s).to eq(expected_request_pattern)
+    expect(actual_request.response.body).to eq({data: {id: 456}, success: true}.to_json)
+
+    remove_request_stub(stub_create)
+  end
+
   xit "throws an exception when trying to register a stub for the unknown resource" do
   end
 

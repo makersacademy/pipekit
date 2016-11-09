@@ -35,12 +35,7 @@ module Pipekit
     # This also uses the "request_all_pages" config option when set to do
     # multiple requests, getting around Pipedrive's pagination
     def search_by_field(field:, value:)
-      query = {field_type: "#{resource}Field",
-               field_key: Config.field_id(resource, field),
-               return_item_ids: true,
-               term: Config.field_value_id(resource, field, value),
-               exact_match: 1
-      }
+      query = search_by_field_query(field, value)
 
       get_request("/searchResults/field", query).response
     end
@@ -68,8 +63,6 @@ module Pipekit
     def post(data)
       response_from self.class.post(uri, options(body: data))
     end
-
-    private
 
     attr_reader :resource
 
@@ -113,14 +106,24 @@ module Pipekit
     # meaning you don't have to worry about the custom IDs
     def parse_body(body)
       body.reduce({}) do |result, (field, value)|
-        field = Config.field_id(resource, field)
         value = Config.field_value_id(resource, field, value)
+        field = Config.field_id(resource, field)
         result.tap { |result| result[field] = value }
       end
     end
 
     def pagination_limit
       Config.fetch(:pagination_limit, DEFAULT_PAGINATION_LIMIT)
+    end
+
+    def search_by_field_query(field = nil, value = nil)
+      {
+        field_type: "#{resource}Field",
+        field_key: Config.field_id(resource, field),
+        return_item_ids: true,
+        term: Config.field_value_id(resource, field, value),
+        exact_match: 1
+      }
     end
 
   end

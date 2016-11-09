@@ -2,8 +2,8 @@ require 'webmock/rspec'
 
 module Pipekit
   RSpec.describe Request do
-    include WebMock::API
-    WebMock.enable!
+    include ::WebMock::API
+    ::WebMock.enable!
 
     subject(:request) { described_class.new("person") }
 
@@ -64,7 +64,7 @@ module Pipekit
     describe "#search_by_field" do
       it "makes a get request to Pipedrive /searchResults with a field key and value" do
         term = "Milhaus"
-        query = "api_token=&exact_match=1&field_key=#{middle_name_field_id}&field_type=personField&limit=#{limit}&return_item_ids=true&term=#{term}&start=0"
+        query = "api_token=123456&exact_match=1&field_key=#{middle_name_field_id}&field_type=personField&limit=#{limit}&return_item_ids=true&term=#{term}&start=0"
         response = { "name" => "middle name" }
         stub_get("searchResults/field", response, query: query)
 
@@ -126,7 +126,7 @@ module Pipekit
     end
 
     def stub_get(uri, response, success: true, more_items: false, start: 0, query: nil)
-      query = query || "api_token=&limit=#{limit}&start=#{start}"
+      query = query || "api_token=123456&limit=#{limit}&start=#{start}"
 
       stub_request(:get, "#{Request::PIPEDRIVE_URL}/#{uri}?#{query}")
         .to_return(status: 200, body: {
@@ -142,13 +142,13 @@ module Pipekit
     end
 
     def stub_put(uri, body)
-      stub_request(:put, "#{Request::PIPEDRIVE_URL}/#{uri}?api_token=")
+      stub_request(:put, "#{Request::PIPEDRIVE_URL}/#{uri}?api_token=123456")
         .with(body: body)
         .to_return(status: 200, body: {success: true, data: "not empty"}.to_json)
     end
 
     def stub_post(uri, body)
-      stub_request(:post, "#{Request::PIPEDRIVE_URL}/#{uri}?api_token=")
+      stub_request(:post, "#{Request::PIPEDRIVE_URL}/#{uri}?api_token=123456")
         .with(body: body)
         .to_return(status: 200, body: {success: true, data: "not empty"}.to_json)
     end

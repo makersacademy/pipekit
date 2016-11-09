@@ -13,6 +13,9 @@ require "pipekit/person_field"
 require "pipekit/deal_field"
 require "pipekit/note"
 
+# TODO extract to pipekit-webmock
+require "pipekit/webmock/api"
+
 module Pipekit
 
   # Define a path to Pipedrive config file

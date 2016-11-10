@@ -11,15 +11,24 @@
 #   stub_pipedrive_request(
 #     resource: :person,
 #     action: :create,
-#     params: {name: "Morty"}
+#     params: {name: "Morty"},
+#     response: {id: 123}
 #   )
 # end
 require "webmock"
+require "pipekit/webmock/errors"
 
 module Pipekit
   module WebMock
     module API
       extend self
+
+      def self.included(mod)
+        if const_defined?("::WebMock::NetConnectNotAllowedError")
+          ::WebMock.send(:remove_const, :NetConnectNotAllowedError)
+          ::WebMock.send(:const_set, :NetConnectNotAllowedError, Pipekit::WebMock::UnregisteredPipedriveRequestError)
+        end
+      end
 
       def stub_pipedrive_request(resource:, action:, params:, response: nil)
         StubRequest.new(resource).stub_request_and_response(action, params, response)

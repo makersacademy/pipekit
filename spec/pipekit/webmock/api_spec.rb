@@ -126,12 +126,6 @@ describe "Pipekit::WebMock::API::stub_pipedrive_request" do
     remove_request_stub(stub_create)
   end
 
-  xit "throws an exception when trying to register a stub for the unknown resource" do
-  end
-
-  xit "throws an exception when trying to register a stub for the unknown action" do
-  end
-
   private
 
   def api_token

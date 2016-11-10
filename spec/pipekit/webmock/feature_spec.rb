@@ -74,11 +74,34 @@ RSpec.describe "Pipekit Webmock stubs" do
     person_repo.find_by(name: "Octocat")
   end
 
-  xit "should throw a readable error if a different request was sent" do
+  it "should throw a readable error if a different request was sent" do
+    error_message = %r(Unregistered request to Pipedrive: https://api.pipedrive.com:443/v1/persons\?api_token=123456
+
+with params:
+
+api_token: 123456
+
+and body:
+
+email: octocat@github.com
+name: John Doe
+custom_field: custom_value
+)
+
+    stub_pipedrive_request(
+      resource: :person,
+      action: :create,
+      params: {
+        name: "Bugz Bunny",
+        middle_name: "Doc"
+      },
+      response: {id: 123}
+    )
+
     actual_person_params = {
       "email" => "octocat@github.com",
       "name" => "John Doe",
-      "Phone number" => "+0123345567"}
+      "custom_field" => "custom_value"}
 
     expect { person_repo.create(actual_person_params) }.to raise_error(error_message)
   end

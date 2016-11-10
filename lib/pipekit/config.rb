@@ -46,7 +46,8 @@ module Pipekit
       #     # => "value_not_there"
       def field_value(resource, field, value)
         custom_field_values(resource, field)
-          .fetch(value, value)
+          .reduce({}) { |result, (k,v)| result.tap { |result| result[k.to_s] = v } }
+          .fetch(value.to_s, value)
       end
 
       # Finds the Pipedrive field value ID from the config if one exists for that

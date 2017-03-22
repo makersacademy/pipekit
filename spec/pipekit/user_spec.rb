@@ -10,7 +10,7 @@ module Pipekit
       it "gets by email" do
         email = "test@example.com"
 
-        repository.find_by_email(email)
+        repository.get_by_email(email)
 
         expect(request).to have_received(:get).with("find", term: email, search_by_email: 1)
       end
@@ -18,7 +18,7 @@ module Pipekit
       it "gets by name" do
         name = "Dave Smith"
 
-        repository.find_by_name(name)
+        repository.get_by_name(name)
 
         expect(request).to have_received(:get).with("find", term: name)
       end

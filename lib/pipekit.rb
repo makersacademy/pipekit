@@ -12,6 +12,7 @@ require "pipekit/deal"
 require "pipekit/person_field"
 require "pipekit/deal_field"
 require "pipekit/note"
+require "pipekit/user"
 
 module Pipekit
 

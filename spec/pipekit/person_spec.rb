@@ -44,6 +44,15 @@ module Pipekit
         expect(request).to have_received(:get).with("find", term: email, search_by_email: 1)
       end
 
+      it "finds by email exactly" do
+        email = "test@example.com"
+        id = 123
+        stub_find_by_email(email, id)
+
+        result = repository.find_exactly_by_email(email)
+        expect(result["id"]).to eq 123
+      end
+
       it "gets by name" do
         name = "Dave Smith"
 

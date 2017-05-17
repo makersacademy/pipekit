@@ -10,6 +10,12 @@ module Pipekit
       request.get("find", term: name)
     end
 
+    def find_exactly_by_email(email)
+      get_by_email(email).select do |item|
+        item["email"] == email
+      end.first
+    end
+
     def update_by_email(email, fields)
       person = find_by(email: email)
       update(person["id"], fields)

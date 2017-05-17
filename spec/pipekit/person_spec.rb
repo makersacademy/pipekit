@@ -80,8 +80,11 @@ module Pipekit
     end
 
     def stub_find_by_email(email, id)
-      allow(request).to receive(:get).with("find", term: email, search_by_email: 1).and_return([{"id" => id}])
-
+      allow(request).to receive(:get).with("find", term: email, search_by_email: 1)
+        .and_return([
+          {"id" => id + 5, "email" => "nottheemailyouarelookingfor@email.com"},
+          {"id" => id, "email" => email}
+        ])
     end
   end
 end

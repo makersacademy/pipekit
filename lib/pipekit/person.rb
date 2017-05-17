@@ -17,7 +17,7 @@ module Pipekit
     end
 
     def update_by_email(email, fields)
-      person = find_by(email: email)
+      person = find_exactly_by_email(email)
       update(person["id"], fields)
     end
 

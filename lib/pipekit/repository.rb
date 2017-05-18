@@ -39,6 +39,7 @@ module Pipekit
     #
     # Returns a Hash or nil if none found.
     def find_by(options)
+      warn "Using `Repository#find_by` with an email may return inexact matches" if email_key?(options)
       where(options, true).first
     end
 
@@ -94,6 +95,10 @@ module Pipekit
 
     def resource
       self.class.to_s.split("::").last.tap { |name| name[0] = name[0].downcase }
+    end
+
+    def email_key?(options)
+      options.keys.first && options.keys.first.to_s == "email"
     end
   end
 end

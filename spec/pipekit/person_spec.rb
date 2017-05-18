@@ -62,6 +62,24 @@ module Pipekit
       end
     end
 
+    describe "warning on dangerous email finds" do
+      it "warns on using find_by with an email" do
+        email = "test@example.com"
+        id = 123
+        stub_find_by_email(email, id)
+
+        expect { repository.find_by(email: email) }.to output(
+          "Using `Repository#find_by` with an email may return inexact matches\n").to_stderr
+      end
+
+      it "does not warn on using find_by with a name" do
+        name = "Geoff"
+        stub_find_by_name(name)
+
+        expect { repository.find_by(name: name) }.not_to output.to_stderr
+      end
+    end
+
     it "updates by a person's email" do
       email = "test@blah.com"
       id = 123
@@ -84,6 +102,13 @@ module Pipekit
         .and_return([
           {"id" => id + 5, "email" => "nottheemailyouarelookingfor@email.com"},
           {"id" => id, "email" => email}
+        ])
+    end
+
+    def stub_find_by_name(name)
+      allow(request).to receive(:get).with("find", term: name)
+        .and_return([
+          {"id" => 0, "name" => name}
         ])
     end
   end

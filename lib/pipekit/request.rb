@@ -81,7 +81,7 @@ module Pipekit
     end
 
     def uri(id = "")
-      "/#{resource}s/#{id}".chomp("/")
+      "/#{pluralized_resource}/#{id}".chomp("/")
     end
 
     def options(query: {}, body: {})
@@ -126,5 +126,11 @@ module Pipekit
       }
     end
 
+    private
+
+    def pluralized_resource
+      return resource.pluralize unless resource.eql?('person')
+      "#{resource}s"
+    end
   end
 end

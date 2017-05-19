@@ -44,12 +44,39 @@ module Pipekit
         expect(request).to have_received(:get).with("find", term: email, search_by_email: 1)
       end
 
+      it "finds by email exactly" do
+        email = "test@example.com"
+        id = 123
+        stub_find_by_email(email, id)
+
+        result = repository.find_exactly_by_email(email)
+        expect(result["id"]).to eq 123
+      end
+
       it "gets by name" do
         name = "Dave Smith"
 
         repository.get_by_name(name)
 
         expect(request).to have_received(:get).with("find", term: name)
+      end
+    end
+
+    describe "warning on dangerous email finds" do
+      it "warns on using find_by with an email" do
+        email = "test@example.com"
+        id = 123
+        stub_find_by_email(email, id)
+
+        expect { repository.find_by(email: email) }.to output(
+          "Using `Repository#find_by` with an email may return inexact matches\n").to_stderr
+      end
+
+      it "does not warn on using find_by with a name" do
+        name = "Geoff"
+        stub_find_by_name(name)
+
+        expect { repository.find_by(name: name) }.not_to output.to_stderr
       end
     end
 
@@ -71,8 +98,18 @@ module Pipekit
     end
 
     def stub_find_by_email(email, id)
-      allow(request).to receive(:get).with("find", term: email, search_by_email: 1).and_return([{"id" => id}])
+      allow(request).to receive(:get).with("find", term: email, search_by_email: 1)
+        .and_return([
+          {"id" => id + 5, "email" => "nottheemailyouarelookingfor@email.com"},
+          {"id" => id, "email" => email}
+        ])
+    end
 
+    def stub_find_by_name(name)
+      allow(request).to receive(:get).with("find", term: name)
+        .and_return([
+          {"id" => 0, "name" => name}
+        ])
     end
   end
 end

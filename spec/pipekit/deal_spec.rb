@@ -29,7 +29,7 @@ module Pipekit
       person_id = 123
       deal_id = 456
 
-      allow(person).to receive(:find_by).with(email: email).and_return(id: person_id)
+      allow(person).to receive(:find_exactly_by_email).with(email).and_return(id: person_id)
       allow(person).to receive(:find_deals).with(person_id).and_return([{id: deal_id}])
 
       repository = described_class.new(request)

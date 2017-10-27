@@ -13,6 +13,7 @@ require "pipekit/person_field"
 require "pipekit/deal_field"
 require "pipekit/note"
 require "pipekit/user"
+require "pipekit/activity"
 
 module Pipekit
 
@@ -25,4 +26,3 @@ module Pipekit
     Config.file_path = path
   end
 end
-

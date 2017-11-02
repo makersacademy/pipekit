@@ -1,5 +1,5 @@
 module Pipekit
-  class Activity
+  class Activities
     include Repository
   end
 end

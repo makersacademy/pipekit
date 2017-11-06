@@ -94,7 +94,7 @@ module Pipekit
     end
 
     def resource
-      self.class.to_s.split("::").last.tap { |name| name[0] = name[0].downcase }
+      self.class::PLURALIZED_CLASSNAME
     end
 
     def email_key?(options)

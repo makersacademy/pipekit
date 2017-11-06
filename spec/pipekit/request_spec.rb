@@ -5,7 +5,7 @@ module Pipekit
     include ::WebMock::API
     ::WebMock.enable!
 
-    subject(:request) { described_class.new("person") }
+    subject(:request) { described_class.new("persons") }
 
     # Taken from /spec/support/config.yml
     let(:middle_name_field_id) { "123abc" }
@@ -83,18 +83,6 @@ module Pipekit
         stub = stub_put("persons/123", "#{middle_name_field_id}=Dave&interview_quality=#{interview_quality_id}")
 
         request.put(id, fields)
-
-        expect(stub).to have_been_requested
-      end
-    end
-
-    describe "#post" do
-      it "makes a post request to Pipedrive with the correct options" do
-        fields = {"name" => "Bob", "middle_name" => "Milhous"}
-
-        stub = stub_post("persons", "name=Bob&#{middle_name_field_id}=Milhous")
-
-        request.post(fields)
 
         expect(stub).to have_been_requested
       end

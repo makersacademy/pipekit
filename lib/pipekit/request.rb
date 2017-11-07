@@ -25,7 +25,6 @@ module Pipekit
     # value - The value of the field.
     #
     # Examples
-    #
     #   search_by_field(field: :cohort, value: 119)
     #   search_by_field(field: :github_username, value: "octocat")
     #
@@ -81,7 +80,7 @@ module Pipekit
     end
 
     def uri(id = "")
-      "/#{resource}s/#{id}".chomp("/")
+      "/#{resource}/#{id}".chomp("/")
     end
 
     def options(query: {}, body: {})
@@ -106,8 +105,9 @@ module Pipekit
     # meaning you don't have to worry about the custom IDs
     def parse_body(body)
       body.reduce({}) do |result, (field, value)|
-        value = Config.field_value_id(resource, field, value)
-        field = Config.field_id(resource, field)
+        singular_resource = resource.chop
+        value = Config.field_value_id(singular_resource, field, value)
+        field = Config.field_id(singular_resource, field)
         result.tap { |result| result[field] = value }
       end
     end
@@ -117,11 +117,12 @@ module Pipekit
     end
 
     def search_by_field_query(field = nil, value = nil)
+      singular_resource = resource.chop
       {
-        field_type: "#{resource}Field",
-        field_key: Config.field_id(resource, field),
+        field_type: "#{singular_resource}Field",
+        field_key: Config.field_id(singular_resource, field),
         return_item_ids: true,
-        term: Config.field_value_id(resource, field, value),
+        term: Config.field_value_id(singular_resource, field, value),
         exact_match: 1
       }
     end

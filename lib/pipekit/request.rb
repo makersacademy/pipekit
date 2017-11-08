@@ -72,15 +72,16 @@ module Pipekit
 
     def get_request(uri, query, start = 0)
       response = self.class.get(uri, options(query: {limit: pagination_limit, start: start}.merge(query)))
-      Result.new(resource, response)
+      Result.new(resource.singular, response)
     end
 
     def response_from(response_data)
-      Result.response(resource, response_data)
+      require 'pry'; binding.pry
+      Result.response(resource.singular, response_data)
     end
 
     def uri(id = "")
-      "/#{resource}/#{id}".chomp("/")
+      "/#{resource.pluralized}/#{id}".chomp("/")
     end
 
     def options(query: {}, body: {})
@@ -105,9 +106,8 @@ module Pipekit
     # meaning you don't have to worry about the custom IDs
     def parse_body(body)
       body.reduce({}) do |result, (field, value)|
-        singular_resource = resource.chop
-        value = Config.field_value_id(singular_resource, field, value)
-        field = Config.field_id(singular_resource, field)
+        value = Config.field_value_id(resource.singular, field, value)
+        field = Config.field_id(resource.singular, field)
         result.tap { |result| result[field] = value }
       end
     end
@@ -117,12 +117,11 @@ module Pipekit
     end
 
     def search_by_field_query(field = nil, value = nil)
-      singular_resource = resource.chop
       {
-        field_type: "#{singular_resource}Field",
-        field_key: Config.field_id(singular_resource, field),
+        field_type: "#{resource.singular}Field",
+        field_key: Config.field_id(resource.singular, field),
         return_item_ids: true,
-        term: Config.field_value_id(singular_resource, field, value),
+        term: Config.field_value_id(resource.singular, field, value),
         exact_match: 1
       }
     end

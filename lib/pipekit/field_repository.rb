@@ -35,7 +35,7 @@ module Pipekit
     end
 
     def parent_resource
-      resource.chomp("Fields")
+      resource.pluralized.chomp("Fields")
     end
 
   end

@@ -5,7 +5,8 @@ module Pipekit
     include ::WebMock::API
     ::WebMock.enable!
 
-    subject(:request) { described_class.new("persons") }
+    let(:resource_label) { double(singular: "person", pluralized: "persons") }
+    subject(:request) { described_class.new(resource_label) }
 
     # Taken from /spec/support/config.yml
     let(:middle_name_field_id) { "123abc" }

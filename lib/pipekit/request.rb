@@ -76,7 +76,6 @@ module Pipekit
     end
 
     def response_from(response_data)
-      require 'pry'; binding.pry
       Result.response(resource.singular, response_data)
     end
 

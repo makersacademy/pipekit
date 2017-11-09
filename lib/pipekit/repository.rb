@@ -94,7 +94,7 @@ module Pipekit
     end
 
     def resource
-      singular_resource = self.class.to_s.downcase
+      singular_resource = self.class::SINGULAR_CLASSNAME
       pluralized_resource = self.class::PLURALIZED_CLASSNAME
       ResourceLabel.new(singular_label: singular_resource, pluralized_label: pluralized_resource)
     end

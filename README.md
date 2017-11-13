@@ -36,6 +36,7 @@ The interface of Pipekit is organised around *repositories*. The available repos
 - Organization
 - Person
 - PersonField
+- Activity
 
 ### Resource repositories
 
@@ -91,6 +92,17 @@ note_repo = Pipekit::Note.new
 note_repo.update(123, {content: "Hey"})
 ```
 
+Add an Activity
+
+```ruby
+activity_repo.create(deal_id: 123,
+                     subject: "Interview Completed",
+                     done: 1,
+                     type: "pairing_session",
+                     duration: "00:45",
+                     note: "This was a fantastic interview")
+```
+
 ### Field repositories
 
 Pipedrive stores custom fields as key-value pairs. E.g. when you add an "Address" field to Persons Pipderive will store it as something like "050280e9bed01e55e25532f0b6e6228c748bf994"
@@ -144,4 +156,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-

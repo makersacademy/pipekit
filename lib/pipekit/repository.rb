@@ -94,7 +94,9 @@ module Pipekit
     end
 
     def resource
-      self.class.to_s.split("::").last.tap { |name| name[0] = name[0].downcase }
+      singular_resource = self.class::SINGULAR_CLASSNAME
+      pluralized_resource = self.class::PLURALIZED_CLASSNAME
+      ResourceLabel.new(singular_label: singular_resource, pluralized_label: pluralized_resource)
     end
 
     def email_key?(options)

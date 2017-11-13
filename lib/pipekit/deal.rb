@@ -1,6 +1,8 @@
 module Pipekit
   class Deal
     include Repository
+    SINGULAR_CLASSNAME = "deal".freeze
+    PLURALIZED_CLASSNAME = "deals".freeze
 
     def get_by_person_id(person_id, person_repo: Person.new)
       raise UnknownPersonError, "No person ID supplied when getting deals by person ID" unless person_id

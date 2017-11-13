@@ -1,6 +1,8 @@
 module Pipekit
   class Person
     include Repository
+    SINGULAR_CLASSNAME = "person".freeze
+    PLURALIZED_CLASSNAME = "persons".freeze
 
     def get_by_email(email)
       request.get("find", term: email, search_by_email: 1)

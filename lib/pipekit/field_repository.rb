@@ -1,6 +1,7 @@
 module Pipekit
   module FieldRepository
     include Repository
+
     def get_by_key(key)
       key = Config.field_id(parent_resource, key)
       search_fields("key", key)
@@ -34,7 +35,7 @@ module Pipekit
     end
 
     def parent_resource
-      resource.chomp("Field")
+      resource.pluralized.chomp("Fields")
     end
 
   end

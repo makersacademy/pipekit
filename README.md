@@ -95,12 +95,15 @@ note_repo.update(123, {content: "Hey"})
 Add an Activity
 
 ```ruby
-activity_repo.create(deal_id: 123,
-                     subject: "Interview Completed",
-                     done: 1,
-                     type: "pairing_session",
-                     duration: "00:45",
-                     note: "This was a fantastic interview")
+activity_repo.create(:deal_id=>123,
+                     :person_id=>321,
+                     :subject=>"Interview Completed",
+                     :due_date=>"2017-11-14",
+                     :due_time=>"14:30",
+                     :duration=>"00:45",
+                     :done=>1,
+                     :type=>"pairing_session",
+                     :note=>"Super cool cat! - Interviewed by: Octocat")
 ```
 
 ### Field repositories

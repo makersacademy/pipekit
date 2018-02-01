@@ -16,6 +16,7 @@ require "pipekit/user"
 require "pipekit/stage"
 require "pipekit/pipeline"
 require "pipekit/activity"
+require "pipekit/activity_type"
 require "pipekit/resource_label"
 
 module Pipekit

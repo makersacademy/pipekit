@@ -16,6 +16,10 @@ module Pipekit
       deal = get_by_person_id(person[:id], person_repo: person_repo).first
       update(deal[:id], params)
     end
+
+    def flow(id)
+      request.get("#{id}/flow")
+    end
   end
 
   UnknownPersonError = Class.new(StandardError)
